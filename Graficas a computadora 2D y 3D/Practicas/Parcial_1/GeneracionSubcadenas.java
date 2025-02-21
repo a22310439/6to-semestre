@@ -11,7 +11,6 @@ public class GeneracionSubcadenas {
     }
 
     public static void main(String[] args) {
-        String cadena = "Hola Mundo";
-        generarSubcadena(cadena);
+        generarSubcadena(args[0]);
     }
 }

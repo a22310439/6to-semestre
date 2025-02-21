@@ -1,7 +1,8 @@
 package EspiralArquimedes;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import java.awt.Dimension;
 
 public class EspiralArquimedes extends JFrame {
     private static final int WIDTH = 400;

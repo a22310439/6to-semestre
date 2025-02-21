@@ -1,6 +1,6 @@
 import javax.swing.JFrame;
 
-public class PracticaJFrame extends JFrame {
+class PracticaJFrame extends JFrame {
     public PracticaJFrame() {
         super("Practica JFrame");
         setSize(400, 400);
