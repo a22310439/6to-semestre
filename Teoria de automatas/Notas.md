@@ -138,27 +138,27 @@ Alexa $\quad \epsilon$
 <table>
   <thead>
     <tr>
-      <th>A, $|A|$, B, $|B|$</th>
+      <th>A, |A|, B, |B|</th>
       <th>Unión</th>
       <th>Intersección</th>
-      <th>$\sim A$</th>
-      <th>$A - B$</th>
+      <th>~A</th>
+      <th>A - B</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>Máximo</td>
-      <td>$|A| + |B|$</td>
-      <td>$\min(|A|,|B|)$</td>
-      <td>$|U| - |A|$</td>
-      <td>$|A|$</td>
+      <td>|A| + |B|</td>
+      <td>min(|A|,|B|)$</td>
+      <td>|U| - |A|</td>
+      <td>|A|</td>
     </tr>
     <tr>
       <td>Mínimo</td>
-      <td>$\max(|A|,|B|)$</td>
-      <td>$0$</td>
-      <td>$U$</td>
-      <td>$|A| - \min(|A|,|B|)$</td>
+      <td>max(|A|,|B|)</td>
+      <td>0</td>
+      <td>U</td>
+      <td>|A| - min(|A|,|B|)</td>
     </tr>
   </tbody>
 </table>
@@ -177,15 +177,11 @@ Calcular: $L3^3, L2^3, L3^3L2^3, (L4L1)^2, L4^*, L3^*, L4^+, ((L4L1)^3(L3^2L2^4)
 ##
 $L3^3 = L3^0L3L3L3 = \{\epsilon, a, ab, bb\}\{\epsilon, a, ab, bb\}\{\epsilon, a, ab, bb\} = \{\epsilon, a, ab, bb\}\{\epsilon, a, aa, ab, bb, aab, aba, abb, bba, abab, abbb, bbab, bbbb\} = \{\epsilon, a,ab,bb,aa,aab,abb,aba,abab,abbb,bba,bbab,bbbb, aaa,aaab,aabb,aaba,aabab,aabbb,abba,abbab,abbbb, abaa,abaab,ababb,ababa,ababab,ababbb,abbba,abbbab,abbbbb, bbaa,bbaab,bbaabb,bbaba,bbabab,bbabbb,bbbba,bbbbab,bbbbbb\}$
 ​
-
 $L2^3 = L2^0L2L2L2 = \{bb, ab\}\{bb, ab\}\{bb, ab\} = \{bb, ab\}\{bbbb, bbab, abbb, abab\} = \{bbbbbb, bbbbab, bbabbb, bbabab, abbbbb, abbbab, ababbb, ababab\}$
-
 
 $L3^3L2^3 = \{\epsilon, a,ab,bb,aa,aab,abb,aba,abab,abbb,bba,bbab,bbbb, aaa,aaab,aabb,aaba,aabab,aabbb,abba,abbab,abbbb, abaa,abaab,ababb,ababa,ababab,ababbb,abbba,abbbab,abbbbb, bbaa,bbaab,bbaabb,bbaba,bbabab,bbabbb,bbbba,bbbbab,bbbbbb\}\{bbbbbb, bbbbab, bbabbb, bbabab, abbbbb, abbbab, ababbb, ababab\} = \{uv | u \in L3^3, v \in L2^3\}$
 
-
 $(L4L1)^2 = (aa, ab, ba, bb, aaa, aab, aba, abb, aaaa, aaab, aaba, aabb)^2 = \{uv | u,v \in L4L1\}$
-
 
 $L4^* = L4^0L4^1l4^2L4^3... = \{\cup L4^n | n \in N0\} = \{\epsilon\} \cup \{aa, ab, ba, bb\} \cup \{xy | x, y \in \{aa, ab, ba, bb\}\} \cup \{xyz | x, y, z \in \{aa, ab, ba, bb\}\} \cup ...$
 
@@ -194,3 +190,6 @@ $L3^* = L3^0L3^1L3^2L3^3... = \{\cup L3^n | n \in N0\} = \{\epsilon\} \cup \{\ep
 $L4^+ = L4^1L4^2L4^3... = \{aa, ab, ba, bb\} \cup \{xy | x, y \in \{aa, ab, ba, bb\}\} \cup \{xyz | x, y, z \in \{aa, ab, ba, bb\}\} \cup ...$
 
 $((L4L1)^3(L3^2L2^4))^0 = \text{Todo valor elevado a la 0 es } \{\epsilon\}$
+
+##
+
