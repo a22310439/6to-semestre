@@ -3,25 +3,25 @@
 Es una máquina que puede interpretar una palabra o serie de palabras y detectar que pertenece a un lenguaje específico.
 
 ## ¿Qué es un lenguaje?
-Un sistema de signos que es utilizado para comunicar e interpretar un mensaje.
+Un conjunto de palabras.
 
 **Conjunto de palabras**
 
 ## ¿Qué es la gramática?
-Un conjunto de reglas que forman la estructura de un lenguaje para que pueda ser interpretado correctamente.
+Un conjunto de reglas que determinan cómo combinar símbolos para formar palabras.
 
 ## Relación
 El lenguaje tiene las palabras que después la gramática le da el orden o la estructura para que las palabras puedan ser interpretadas correctamente. El Autómata identifica la palabra o secuencia de palabras y determina si es válida la oración. El autómata también retroalimenta al lenguaje.
 
 ## ¿Qué es una cadena o palabra?
-Una secuencia finita de címbolos juxtapuestos.
+Una secuencia finita de símbolos juxtapuestos.
 
 $W_0 = 110001$
 
 $W_1 = abba$
 
 ## ¿Qué es un alfabeto? ($\epsilon$)
-Un conjunto de signos.
+Un conjunto finito de signos.
 
 $\Sigma _0 = \{0, 1\}$
 
@@ -191,5 +191,42 @@ $L4^+ = L4^1L4^2L4^3... = \{aa, ab, ba, bb\} \cup \{xy | x, y \in \{aa, ab, ba, 
 
 $((L4L1)^3(L3^2L2^4))^0 = \text{Todo valor elevado a la 0 es } \{\epsilon\}$
 
-##
+## Gramáticas
+$\Epsilon = \{a, b, c\}$
 
+$S \rightarrow aS$ (Regla de producción)
+
+$S \rightarrow bS$
+
+$S \rightarrow cS$
+
+$S \rightarrow \epsilon$
+
+Las reglas de producción sólo se pueden usar con los símbolos del alfabeto
+
+Primeras 10 palabras con las reglas de producción junto con su 
+
+$\epsilon = S \Rightarrow \epsilon, \quad a = S \Rightarrow aS \Rightarrow a \epsilon, \quad b = S \Rightarrow bS \Rightarrow b \epsilon, \quad c = S \Rightarrow cS \Rightarrow c \epsilon$ 
+
+$aa = S \Rightarrow aS \Rightarrow aaS \Rightarrow aa \epsilon, \quad ab = S \Rightarrow aS \Rightarrow abS \Rightarrow ab \epsilon, \quad ac = aS \Rightarrow acS \Rightarrow ac \epsilon$
+
+$ba = S \Rightarrow bS \Rightarrow baS \Rightarrow ba \epsilon, \quad bb = S \Rightarrow bS \Rightarrow bbS \Rightarrow bb \epsilon, \quad bc = S \Rightarrow bS \Rightarrow bcS \Rightarrow bc \epsilon$
+
+$\{\epsilon, a, b, c, aa, ab, ac, ba, bb, bc\}$
+
+## Definicón formal de gramática
+$G = \{N, \Sigma, S, P\}$
+
+$N \cap \Sigma = 0$
+
+N = Símbolos no terminales
+
+$\Sigma$ = Alfabeto conocido
+
+S = Símbolo no terminal especial que nos indica el inicio para todas las producciones (Simbolo inicial)
+
+P = Conjunto de reglas de producción
+
+Siguiendo el ejemplo anterior, tenemos todo lo necesario para definir completamente a G:
+
+$G = (\{S\}, \{a, b, c\}, S, \{aS, bS, cS, \epsilon\})$

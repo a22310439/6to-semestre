@@ -10,3 +10,6 @@ Solo es multiplicar en todo momento cada dato que te pueda dar, esto se
 llama el principio de la multiplicación y permiten hallar formulas generales que permitan calcular el numero de permutaciones con y sin repetición.
 
 **Hay dos tipos de permutaciones:** Con repetición y sin repetición.
+
+
+## Caracrerísticas de la probabilidad
