@@ -229,4 +229,37 @@ P = Conjunto de reglas de producción
 
 Siguiendo el ejemplo anterior, tenemos todo lo necesario para definir completamente a G:
 
-$G = (\{S\}, \{a, b, c\}, S, \{aS, bS, cS, \epsilon\})$
+$G = (\{S\}, \{a, b, c\}, S, \{S \rightarrow aS|bS|cS|\epsilon\})$
+
+$\{S \rightarrow aS|bS|cS|\epsilon\} \Rightarrow$  notación de Backus Naur
+
+### Ejercicio
+$\Sigma = \{a, b\}$
+
+$S \rightarrow AB$
+
+$A \rightarrow aA | \epsilon$
+
+$B \rightarrow bB | \epsilon$
+
+Primeras 10 palabras = $\{\epsilon, a, b, aa, ab, bb, aaa, aab, abb, bbb\}$
+
+$\epsilon = S \Rightarrow AB, AB \Rightarrow \epsilon \epsilon = \epsilon$
+
+$a = S \Rightarrow AB, AB \Rightarrow aA\epsilon \Rightarrow a\epsilon \epsilon = a$
+
+$b = S \Rightarrow AB, AB \Rightarrow \epsilon bB \Rightarrow \epsilon b \epsilon = b$
+
+$aa = S \Rightarrow AB, AB \Rightarrow aA \epsilon \Rightarrow aaA \epsilon \Rightarrow, aa \epsilon \epsilon = aa$
+
+$ab = S \Rightarrow AB, AB \Rightarrow aAbB \Rightarrow a \epsilon b \epsilon = ab$
+
+$bb = S \Rightarrow AB, AB \Rightarrow \epsilon bB \Rightarrow \epsilon bbB \Rightarrow, \epsilon bb \epsilon = bb$
+
+$aaa = S \Rightarrow AB, AB \Rightarrow aA \epsilon \Rightarrow aaA \epsilon \Rightarrow aaaA \epsilon \Rightarrow aaa \epsilon \epsilon = aaa$
+
+$aab = S \Rightarrow AB, AB \Rightarrow aAbB \Rightarrow aaAb \epsilon \Rightarrow aa \epsilon b \epsilon = aab$
+
+$abb = S \Rightarrow AB, AB \Rightarrow aAbB \Rightarrow a \epsilon bbB \Rightarrow a \epsilon bb \epsilon = abb$
+
+$bbb = S \Rightarrow AB, AB \Rightarrow \epsilon bB \Rightarrow \epsilon bbB \Rightarrow \epsilon bbbB \Rightarrow \epsilon bbb \epsilon = bbb$
