@@ -1,5 +1,3 @@
-package VisorImagen;
-
 import java.awt.Image;
 import java.awt.Toolkit;
 import javax.swing.JFrame;
@@ -18,9 +16,13 @@ public class VisorImagen extends JFrame {
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         getContentPane().add(scroll);
         scroll.setViewportView(pantalla);
-
+        
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(400, 300);
         setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        new VisorImagen("imagen.jpg");
     }
 }

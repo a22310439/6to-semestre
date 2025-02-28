@@ -21,8 +21,7 @@ public class Main {
         diagrama.agregarRespuesta("Manzana");
         diagrama.agregarRespuesta("Manzana");
         diagrama.agregarRespuesta("Platano");
-        diagrama.agregarRespuesta("Sandia");
-        diagrama.agregarRespuesta("Sandia");
+        diagrama.agregarRespuesta("Platano");
         diagrama.agregarRespuesta("Sandia");
         diagrama.agregarRespuesta("Sandia");
     }
