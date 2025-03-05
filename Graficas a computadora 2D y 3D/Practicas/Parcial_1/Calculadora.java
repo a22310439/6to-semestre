@@ -97,7 +97,7 @@ public class Calculadora extends JFrame implements ActionListener {
 
         switch (comando) {
             case "C" -> {
-                // Reiniciar todo
+                // Reiniciar
                 pantalla.setText("0");
                 operando1 = 0;
                 operador = "";
