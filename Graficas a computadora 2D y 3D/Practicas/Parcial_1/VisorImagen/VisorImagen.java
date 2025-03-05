@@ -18,7 +18,7 @@ public class VisorImagen extends JFrame {
         scroll.setViewportView(pantalla);
         
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(400, 300);
+        setSize(500, 400);
         setVisible(true);
     }
 

@@ -26,7 +26,6 @@ public class Monito extends JFrame {
     }
 
     public static void main(String[] args) {
-        Monito monito = new Monito();
-        monito.setVisible(true);
+        new Monito();
     }
 }
