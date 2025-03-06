@@ -263,3 +263,21 @@ $aab = S \Rightarrow AB, AB \Rightarrow aAbB \Rightarrow aaAb \epsilon \Rightarr
 $abb = S \Rightarrow AB, AB \Rightarrow aAbB \Rightarrow a \epsilon bbB \Rightarrow a \epsilon bb \epsilon = abb$
 
 $bbb = S \Rightarrow AB, AB \Rightarrow \epsilon bB \Rightarrow \epsilon bbB \Rightarrow \epsilon bbbB \Rightarrow \epsilon bbb \epsilon = bbb$
+
+## Gramáticas para lenguajes
+Hacer las gramáticas que produzcan el siguiente lenguaje:
+$\{a^nb^m | n,m > 1\}$
+
+$S \rightarrow aA$
+
+$A \rightarrow aA | aB$
+
+$B \rightarrow bB | bb$
+
+##
+Ahora hacer las gramáticas que produzcan el siguiente lenguaje:
+$\{a^nb^{2n} | n > 1\}$
+
+$S \rightarrow aAbb$
+
+$A \rightarrow aAbb | abb$
