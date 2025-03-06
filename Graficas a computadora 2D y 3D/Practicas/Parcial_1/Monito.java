@@ -6,10 +6,12 @@ public class Monito extends JFrame {
         super("Monito");
         setSize(200, 300);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setVisible(true);
     }
 
     @Override
     public void paint(Graphics g) {
+        g.drawString("Monito", 10, 100);
         // Cabeza
         g.drawArc(60, 60, 50, 50, 0, 360);
         g.drawArc(70, 70, 30, 30, 180, 180);

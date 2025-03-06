@@ -24,5 +24,10 @@ public class Main {
         diagrama.agregarRespuesta("Platano");
         diagrama.agregarRespuesta("Sandia");
         diagrama.agregarRespuesta("Sandia");
+        diagrama.agregarRespuesta("Sandia");
+        diagrama.agregarRespuesta("Sandia");
+        diagrama.agregarRespuesta("Sandia");
+        diagrama.agregarRespuesta("Sandia");
+        diagrama.agregarRespuesta("Sandia");
     }
 }
