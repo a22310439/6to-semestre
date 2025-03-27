@@ -4,8 +4,11 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.concurrent.ScheduledExecutorService;
+import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -16,9 +19,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-
 public class RelojAnalogico extends JPanel {
     private BufferedImage buffer;
+    private BufferedImage backgroundImage; // Imagen de fondo
+
     private double anguloSegundos = 0;
     private double anguloMinutos  = 0;
     private double anguloHoras    = 0;
@@ -31,7 +35,14 @@ public class RelojAnalogico extends JPanel {
     private final GearChain gearChain = new GearChain();
     
     public RelojAnalogico() {
-        setPreferredSize(new java.awt.Dimension(1000, 1000));
+        setPreferredSize(new java.awt.Dimension(600, 600));
+        
+        // Cargar la imagen de fondo
+        try {
+            backgroundImage = ImageIO.read(new File("background.jpg"));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
         
         ScheduledExecutorService executor = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(() -> {
@@ -75,8 +86,14 @@ public class RelojAnalogico extends JPanel {
         }
         Graphics2D g2 = buffer.createGraphics();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(getBackground());
-        g2.fillRect(0, 0, getWidth(), getHeight());
+        
+        // Dibujar la imagen de fondo escalada al tamaño del panel
+        if (backgroundImage != null) {
+            g2.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
+        } else {
+            g2.setColor(getBackground());
+            g2.fillRect(0, 0, getWidth(), getHeight());
+        }
         
         int centroX = getWidth() / 2;
         int centroY = getHeight() / 2;
@@ -93,12 +110,13 @@ public class RelojAnalogico extends JPanel {
         g.drawImage(buffer, 0, 0, null);
     }
     
+    @SuppressWarnings("unused")
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Reloj con Engranes, Alarma y Configuración");
+        JFrame frame = new JFrame("Reloj Analógico");
         RelojAnalogico reloj = new RelojAnalogico();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        JCheckBox checkBox = new JCheckBox("Mostrar engranes");
+        JCheckBox checkBox = new JCheckBox("Quitar carátula");
         JPanel radioPanel = new JPanel();
         JRadioButton rbSegundero = new JRadioButton("Segundero");
         JRadioButton rbMinutero  = new JRadioButton("Minutero");

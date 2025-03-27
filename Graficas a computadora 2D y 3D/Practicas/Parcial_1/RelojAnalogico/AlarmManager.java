@@ -1,4 +1,3 @@
-import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import javax.sound.sampled.AudioInputStream;
@@ -40,8 +39,8 @@ public class AlarmManager {
     private void playAlarmSound() {
         new Thread(() -> {
             try {
-                File soundFile = new File("alarma.wav");
-                AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+                // Supongamos que "alarma.wav" está en el mismo paquete que esta clase
+                AudioInputStream audioIn = AudioSystem.getAudioInputStream(getClass().getResource("alarma.wav"));
                 Clip clip = AudioSystem.getClip();
                 clip.open(audioIn);
                 clip.start();

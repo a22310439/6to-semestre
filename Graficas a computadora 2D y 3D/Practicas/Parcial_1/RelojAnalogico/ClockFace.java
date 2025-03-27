@@ -7,12 +7,13 @@ public class ClockFace {
     public void draw(Graphics2D g2, int centroX, int centroY, int radio,
                      double anguloSegundos, double anguloMinutos, double anguloHoras) {
         // Dibujar la esfera del reloj
+        g2.setColor(Color.WHITE);
+        g2.fillOval(centroX - radio, centroY - radio, 2 * radio, 2 * radio);
         g2.setColor(Color.BLACK);
-        g2.drawOval(centroX - radio, centroY - radio, 2 * radio, 2 * radio);
         g2.setFont(new Font("Arial", Font.BOLD, 16));
         FontMetrics fm = g2.getFontMetrics();
         for (int i = 1; i <= 12; i++) {
-            double anguloNum = Math.toRadians(30 * i - 90);
+            double anguloNum = Math.toRadians((30 * i - (double) 90));
             int radioNum = radio - 30;
             int x = centroX + (int)(radioNum * Math.cos(anguloNum));
             int y = centroY + (int)(radioNum * Math.sin(anguloNum));

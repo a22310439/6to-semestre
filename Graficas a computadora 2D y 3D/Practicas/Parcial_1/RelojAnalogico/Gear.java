@@ -56,13 +56,6 @@ public class Gear {
         return (Path2D) at.createTransformedShape(gear);
     }
     
-    /**
-     * Dibuja el engrane en el contexto gráfico indicado.
-     *
-     * @param g2         Objeto Graphics2D sobre el que dibujar.
-     * @param fillColor  Color de relleno.
-     * @param strokeColor Color de trazo.
-     */
     public void draw(Graphics2D g2, Color fillColor, Color strokeColor) {
         Path2D shape = getShape();
         g2.setColor(fillColor);
