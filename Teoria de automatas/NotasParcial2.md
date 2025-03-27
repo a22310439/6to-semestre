@@ -137,3 +137,49 @@ e) $\{aaa, aba, abba, baba\}$
 
 $L(((((aa)a) + ((ab)a)) + ((ab)(ba)) + ((ba)(ba))))$
 
+## Gramáticas Regulares
+Hay 2 tipos de gramáticas regulares:
+
+* Lineal izquierda
+* Lineal derecha
+
+##
+Ejemplo gramática derecha:
+$A \rightarrow \epsilon$
+
+$A \rightarrow w$
+
+$A \rightarrow wB$
+
+$A \rightarrow B$
+
+##
+Ejemplo gramática izquierda
+$A \rightarrow \epsilon$
+
+$A \rightarrow w$
+
+$A \rightarrow Bw$
+
+$A \rightarrow B$
+##
+
+NO se permite:
+
+* Uso de dos símbolos no terminales: $A \rightarrow BC$
+* Uso de reglas de producción izquierda y derecha: $A \rightarrow wB$ y $A \rightarrow Bw$
+* Uso de símbolos no terminales "en medio": $A \rightarrow wBv$
+##
+
+### Ejercicio
+$S \rightarrow AB$
+
+$A \rightarrow \epsilon | aA$
+
+$B \rightarrow \epsilon | bB$
+
+Esta gramática no es regular, pero sabemos que las palabras que puede formar esta gramática es $a^*b^*$, quiere decir que es un lenguaje regular. Escribe la gramática de tal manera que sea regular.
+
+$S \rightarrow aS | A$
+
+$A \rightarrow \epsilon | bA$
