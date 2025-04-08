@@ -183,3 +183,83 @@ Esta gramática no es regular, pero sabemos que las palabras que puede formar es
 $S \rightarrow aS | A$
 
 $A \rightarrow \epsilon | bA$
+
+## Autómatas Finitos
+Se les conoce como máquinas de estados y transiciones.
+
+* Estados: Los "estados" del sistema
+
+* Transiciones: Estímulo que hace el cambio
+
+Los estados se representan con círculos y las transiciones con flechas. Los estados pueden ser círculos "simples" que significan "trabajando" y un círculo doble que significa "fin". 
+
+### Ejercicio
+Escribir 10 palabras para un autómata finito (excepto "aaa") que sea definido de la siguiente manera:
+El estado inicial tiene una transición hacia si mismo con la letra "b" y una transición al siguiente estado con la letra "a". El segundo estado tiene una transición hacis si mismo con la letra "b" y una transición al siguiente estado con la letra "a". El tercer estado tiene una transición hacis si mismo con la letra "b" y una transición al estado final con la letra "a".
+
+Palabras: aaba, abaa, baaa, ababa, baaba, bababa, aabba, ababba, baabba, bababba, abbabba...
+
+Este autómata pertenece a una subcategoría llamada Autómata Finito no Determinístico. Esto es porque llega a un punto en el que no sabe qué hacer ante cierta trancisión. En este caso, al llegar al estado final, si recibe otra letra, el autómata no sabe qué hacer porque no hay un estado que defina la siguiente instrucción.
+
+En los autómatas deterministas, siempre se sabe qué hacer en todo momento en presencia de todas las transiciones.
+
+### La definición formal de un autómata
+$M = (Q, \Sigma, \delta, q0, F)$
+
+Donde:
+
+Q = El conjunto de estados
+
+$\Sigma$ = El conjunto de símbolos del lenguaje
+
+$\delta$ = El conjunto de transiciones
+
+q0 = El estado inicial
+
+F = El conjunto de etados finales
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>a</th>
+      <th>b</th>
+      </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>3</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>4</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>5</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>5</td>
+      <td>5</td>
+    </tr>
+  </tbody>
+</table>
+
+Para representar cóḿo trabaja un autómata, se utiliza lo siguiente:
+
+$\delta = (q, wa) = \delta (\delta(q, w), a)$
+
+q = estado que va a transicionar
+
+wa = la transición que se va a tomar
+
