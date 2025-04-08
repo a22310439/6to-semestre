@@ -19,10 +19,10 @@ public class VisorImagen extends JFrame {
         
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 400);
-        setVisible(true);
     }
 
     public static void main(String[] args) {
-        new VisorImagen("imagen.jpg");
+        VisorImagen visor = new VisorImagen("imagen.jpg");
+        visor.setVisible(true);
     }
 }
