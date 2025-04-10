@@ -204,7 +204,7 @@ Este autómata pertenece a una subcategoría llamada Autómata Finito no Determi
 En los autómatas deterministas, siempre se sabe qué hacer en todo momento en presencia de todas las transiciones.
 
 ### La definición formal de un autómata
-$M = (Q, \Sigma, \delta, q0, F)$
+$AFD \rightarrow M = (Q, \Sigma, \delta, q0, F)$
 
 Donde:
 
@@ -306,3 +306,8 @@ RegEx: $(b^*+(ab)^*+(aab)^*)^*aaa(a+b)^*$
 El estado 0 (inicial) tiene teansición 'a' al estado 1 y la transición 'b' al estado 4. El estado 1 tiene la transición 'a' al estado 5 y la transición 'b' al estado 2. El estado 2 tiene la transición 'a' al estado 3 (final) y la transición 'b' a si mismo. El estado 3 (final) tiene la transición 'a' y 'b' a si mismo. El estado 4 tiene la transición 'a' al estado 5 y la transición 'b' al estado 6 (final). El estado 5 tiene la transición 'a' a si mismo y la transición 'b' al estado 3 (final). El estado 6 (final) tiene las transiciones 'a' y 'b' a si mismo.
 
 Encontrar su tabla, la expresión regular y su gramática.
+
+##
+$AFN \rightarrow N = (Q, \Epsilon, \Delta, Q_0, F)$
+
+Los símbolos son los mismos que AFD
