@@ -204,7 +204,7 @@ Este autómata pertenece a una subcategoría llamada Autómata Finito no Determi
 En los autómatas deterministas, siempre se sabe qué hacer en todo momento en presencia de todas las transiciones.
 
 ### La definición formal de un autómata
-$M = (Q, \Sigma, \delta, q0, F)$
+$AFD \rightarrow M = (Q, \Sigma, \delta, q0, F)$
 
 Donde:
 
@@ -263,3 +263,51 @@ q = estado que va a transicionar
 
 wa = la transición que se va a tomar
 
+## Ejercicio
+Encontrar la representación y la expresión regular del siguiente autómata:
+
+El estado 1 (inicial) tiene la transición 'a' al estado 2 y la transición 'b' a si mismo. El estado 2 tiene la transición 'a' al estado 3 y la transición 'b' al estado 1. El estado 3 tiene la transición 'a' al estado 4 (final) y la transición 'b' al estado 1. El estado 4 y final tiene las transiciones 'a' y 'b' hacia si mismo.
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>a</th>
+      <th>b</th>
+      </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>3</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>4</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>4</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+
+RegEx: $(b^*+(ab)^*+(aab)^*)^*aaa(a+b)^*$
+
+## Ejercicio
+El estado 0 (inicial) tiene teansición 'a' al estado 1 y la transición 'b' al estado 4. El estado 1 tiene la transición 'a' al estado 5 y la transición 'b' al estado 2. El estado 2 tiene la transición 'a' al estado 3 (final) y la transición 'b' a si mismo. El estado 3 (final) tiene la transición 'a' y 'b' a si mismo. El estado 4 tiene la transición 'a' al estado 5 y la transición 'b' al estado 6 (final). El estado 5 tiene la transición 'a' a si mismo y la transición 'b' al estado 3 (final). El estado 6 (final) tiene las transiciones 'a' y 'b' a si mismo.
+
+Encontrar su tabla, la expresión regular y su gramática.
+
+##
+$AFN \rightarrow N = (Q, \Epsilon, \Delta, Q_0, F)$
+
+Los símbolos son los mismos que AFD
