@@ -1,3 +1,3 @@
 En el código de lineas rectas utilizando el modelo matemático se vieron algunas deficiencias en cuanto a las lineas dibujadas.
-Línea diagonal hacia arriba: La línea se dibujó haciendo un patrón en zigzag. Como tal no es una línea recta, sólo se mueve de un lado hacia otro para llegar al punto final.
-Línea diagonal hacia abajo: La línea se dibuja con diferentes "puntos" gruesos en la línea, seguido de una línea recta delgada para llegar al siguiente punto grueso y así consecutivcamente hasta llegar al punto final.
+La líneas se tienen que dibujar de izquierda a derecha, si es de derecha a izquierda, no se puede dibujar.
+Las líneas diagonales con mucha pendiente se ven punteadas, no se dibujan como debe de ser.

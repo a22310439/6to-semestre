@@ -7,7 +7,7 @@ public class Rectas extends JFrame {
     private final BufferedImage buffer;
 
     public Rectas() {
-        setTitle("Practica 1");
+        setTitle("Practica 1 - Rectas");
         setSize(600, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -17,8 +17,11 @@ public class Rectas extends JFrame {
 
         drawLine(30, 150, 280, 150, Color.BLACK);
         drawLine(450, 50, 450, 280, Color.BLACK);
-        drawLine(30, 580, 280, 330, Color.BLACK);
-        drawLine(330, 330, 580, 580, Color.BLACK);
+        //drawLine(200, 580, 280, 330, Color.BLACK);
+        //drawLine(330, 330, 580, 580, Color.BLACK);
+
+        drawLine(200, 580, 280, 330, Color.BLACK);
+        drawLine(580, 580, 330, 330, Color.BLACK);
     }
 
     public void drawPixel(int x, int y, Color c) {
@@ -31,22 +34,19 @@ public class Rectas extends JFrame {
         int dx = (x1 - x0);
 
         if (dx == 0) { // Línea vertical
-            int yi = (y0 < y1) ? 1 : -1;
-            for (int y = y0; y != y1; y += yi) {
+            for (int y = y0; y != y1; y ++) {
                 drawPixel(x0, y, c);
             }
             drawPixel(x1, y1, c);
         } else if (dy == 0) { // Línea horizontal
-            int xi = (x0 < x1) ? 1 : -1;
-            for (int x = x0; x != x1; x += xi) {
+            for (int x = x0; x != x1; x ++) {
                 drawPixel(x, y0, c);
             }
             drawPixel(x1, y1, c);
         } else { // Línea inclinada
             double m = (double) dy / dx;
-            int xi = (x0 < x1) ? 1 : -1;
 
-            for (int x = x0; x != x1; x += xi) {
+            for (int x = x0; x != x1; x ++) {
                 int y = (int) Math.round(m * (x - x0) + y0);
                 drawPixel(x, y, c);
             }

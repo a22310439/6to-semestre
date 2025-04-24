@@ -1,0 +1,3 @@
+Mejoras para el modelo matemático
+Ver si la recta se dibuja de derecha a izquierda y dibujarlo de la manera que se requiere.
+Ver si la pendiente es mayor a 1, e iterar sobre el eje x o y dependiendo de la pendiente para que no hayan huecos vacíos. 

@@ -1,0 +1,3 @@
+Ambos algoritmos usan únicamente operaciones enteras (sin flotantes) y son muy eficientes.
+Bresenham se enfoca en evitar el cálculo de la pendiente y solo toma decisiones con base en el error acumulado.
+El algoritmo de Punto Medio es una generalización del Bresenham, pero basado en una función implícita (F(x, y) = 0) que representa la línea, evaluando el punto medio entre dos posibles candidatos para decidir el siguiente píxel.
