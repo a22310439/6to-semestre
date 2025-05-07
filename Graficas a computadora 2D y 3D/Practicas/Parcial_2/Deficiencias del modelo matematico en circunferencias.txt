@@ -1,0 +1,3 @@
+En el código de circunferencia utilizando el modelo matemático se vieron algunas deficiencias.
+Al dibujarse la circunferencia, se itera en x. Esto quiere decir que en los "extremos" izquierdo y derecho se sen huecos vacíos porque el salto en el eje y es demasiado cuando se cambia el valor de x.
+El último pixel de los lados izquierdo y derecho se pinta dos veces, porque en el eje y es el mismo en ese valor de x.

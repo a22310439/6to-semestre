@@ -1,0 +1,3 @@
+En el código de circunferencia utilizando coordeanadas polares se vieron algunas deficiencias.
+Para calcular los pixeles que se van a pintar se tiene que hacer un incremento mucho más fino a theta, de otra manera, la dircunferencia se vería punteada en vez de ser una línea la que la dibuja.
+Las funciones seno y coseno dentro del ángulo requieren de mucho procesamiento. Si se requieren de más cálculos para pintar los pixeles más "pegados", se requiere de más procesamiento.

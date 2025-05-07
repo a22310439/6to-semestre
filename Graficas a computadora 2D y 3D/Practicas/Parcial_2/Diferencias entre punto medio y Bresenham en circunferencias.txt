@@ -1,0 +1,3 @@
+En punto medio, el valor inicial es d = 1 - r y en Bresenham es d = 3 - 2r, escalada por 2 de punto medio y es para eliminar fracciones.
+Como Bresenham sube la escala a 2, las fórmulas de actualización también tienen que ser escaladas.
+En punto medio puede requerir de un redondeo, mientras que en Bresenham no hay que redondear, ya que todo es entero.

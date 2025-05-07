@@ -1,0 +1,3 @@
+En el código de circunferencia utilizando simetría de ocho lados se vieron algunas ventajas.
+Se tiene que utilizar 1/8 del procesamiento para identificar los pixeles que se van a dibujar.
+La circunferencia se dibuja mucho más rápido al necesitar menor procesamiento.
