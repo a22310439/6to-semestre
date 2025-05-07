@@ -17,6 +17,16 @@ public class Graficos {
         ventana.getGraphics().drawImage(buffer, x, y, ventana);
     }
 
+    private void drawThickPixel(int x, int y, Color c, int thickness) {
+        int half = thickness / 2;
+        for (int dx = -half; dx <= half; dx++) {
+            for (int dy = -half; dy <= half; dy++) {
+                drawPixel(x + dx, y + dy, c);
+            }
+        }
+    }
+    
+
     public void drawLine(int x0, int y0, int x1, int y1, Color c) {
         int dx = Math.abs(x1 - x0);
         int dy = Math.abs(y1 - y0);
@@ -127,6 +137,45 @@ public class Graficos {
         }
     }
 
+    public void drawTypeCircle(int xc, int yc, int r, Color c, int mask) {
+        int x = 0, y = r;
+        int d = 3 - 2 * r;
+    
+        int patternIndex = 0;
+    
+        while (x <= y) {
+            if (((mask >> (patternIndex % 16)) & 1) == 1) {
+                plot8(xc, yc, x, y, c);
+            }
+    
+            if (d < 0) {
+                d = d + 4 * x + 6;
+            } else {
+                d = d + 4 * (x - y) + 10;
+                y--;
+            }
+            x++;
+            patternIndex++;
+        }
+    }
+
+    public void drawThickCircle(int xc, int yc, int r, Color c, int thickness) {
+        int x = 0, y = r;
+        int d = 3 - 2 * r;
+    
+        while (x <= y) {
+            // En lugar de solo un píxel, se dibujan discos o líneas en los 8 puntos simétricos
+            plotThick8(xc, yc, x, y, c, thickness);
+            if (d < 0) {
+                d = d + 4 * x + 6;
+            } else {
+                d = d + 4 * (x - y) + 10;
+                y--;
+            }
+            x++;
+        }
+    }
+    
     // Helper para no repetir código
     private void plot8(int xc, int yc, int x, int y, Color c) {
         drawPixel(xc + x, yc + y, c);
@@ -138,6 +187,18 @@ public class Graficos {
         drawPixel(xc - y, yc - x, c);
         drawPixel(xc + y, yc - x, c);
     }
+
+    private void plotThick8(int xc, int yc, int x, int y, Color c, int thickness) {
+        drawThickPixel(xc + x, yc + y, c, thickness);
+        drawThickPixel(xc - x, yc + y, c, thickness);
+        drawThickPixel(xc - x, yc - y, c, thickness);
+        drawThickPixel(xc + x, yc - y, c, thickness);
+        drawThickPixel(xc + y, yc + x, c, thickness);
+        drawThickPixel(xc - y, yc + x, c, thickness);
+        drawThickPixel(xc - y, yc - x, c, thickness);
+        drawThickPixel(xc + y, yc - x, c, thickness);
+    }
+    
 
     public void drawElipse(int xc, int yc, int a, int b, Color c) {
         int a2 = a*a, b2 = b*b;
