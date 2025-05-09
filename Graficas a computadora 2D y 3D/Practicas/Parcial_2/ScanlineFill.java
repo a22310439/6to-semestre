@@ -1,5 +1,6 @@
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import java.awt.Color;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,7 +10,7 @@ public class ScanlineFill extends JFrame {
     private final Graficos g;
 
     public ScanlineFill() {
-        setTitle("Relleno por Scan-Line Mejorado");
+        setTitle("Relleno por Scan-Line");
         setSize(600, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
@@ -25,9 +26,6 @@ public class ScanlineFill extends JFrame {
         polygon.add(new Point(200, 450));
         polygon.add(new Point(120, 270));
 
-        // Rellenar el polígono
-        fillPolygonScanline(polygon, Color.GREEN);
-        
         // Dibujar contorno del polígono
         for (int i = 0; i < polygon.size(); i++) {
             Point p1 = polygon.get(i);
@@ -35,6 +33,9 @@ public class ScanlineFill extends JFrame {
             g.drawLine(p1.x, p1.y, p2.x, p2.y, Color.BLACK);
         }
 
+        // Rellenar el polígono
+        fillPolygonScanline(polygon, Color.GREEN);
+        
     }
 
     public void fillPolygonScanline(List<Point> vertices, Color fillColor) {
