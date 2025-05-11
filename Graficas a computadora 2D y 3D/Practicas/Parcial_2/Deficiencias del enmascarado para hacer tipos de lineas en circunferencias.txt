@@ -1,0 +1,3 @@
+En el código de tipos de lineas para circunferencias se determinan algunas deficiencias.
+La separacion entre los segmentos se ve desigual.
+El patrón de la circunferencia puede hacer que se vea fragmentado o irregular.
