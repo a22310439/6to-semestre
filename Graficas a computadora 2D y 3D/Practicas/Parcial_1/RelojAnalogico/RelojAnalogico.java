@@ -41,7 +41,7 @@ public class RelojAnalogico extends JPanel {
         try {
             backgroundImage = ImageIO.read(new File("background.jpg"));
         } catch (IOException ex) {
-            ex.printStackTrace();
+            System.out.println(ex.getMessage());
         }
         
         ScheduledExecutorService executor = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
