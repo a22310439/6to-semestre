@@ -3,7 +3,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
-public class ClockFace {
+public class ClockFace1 {
     public void draw(Graphics2D g2, int centroX, int centroY, int radio,
                      double anguloSegundos, double anguloMinutos, double anguloHoras) {
         // Dibujar la esfera del reloj

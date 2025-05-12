@@ -3,7 +3,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 
-public class Gear {
+public class Gear1 {
     private final double radius;
     private final int teeth;
     private final double toothDepth;
@@ -11,7 +11,7 @@ public class Gear {
     private final double cy;
     private double startAngle;
     
-    public Gear(double radius, int teeth, double toothDepth, double startAngle, double cx, double cy) {
+    public Gear1(double radius, int teeth, double toothDepth, double startAngle, double cx, double cy) {
         this.radius = radius;
         this.teeth = teeth;
         this.toothDepth = toothDepth;

@@ -31,8 +31,8 @@ public class RelojAnalogico extends JPanel {
     
     // Instancias de clases separadas
     private AlarmManager alarmManager = new AlarmManager();
-    private final ClockFace clockFace = new ClockFace();
-    private final GearChain gearChain = new GearChain();
+    private final ClockFace1 clockFace = new ClockFace1();
+    private final GearChain1 gearChain = new GearChain1();
     
     public RelojAnalogico() {
         setPreferredSize(new java.awt.Dimension(600, 600));
