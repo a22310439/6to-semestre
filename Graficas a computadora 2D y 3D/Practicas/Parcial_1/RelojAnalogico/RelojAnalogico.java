@@ -31,8 +31,8 @@ public class RelojAnalogico extends JPanel {
     
     // Instancias de clases separadas
     private AlarmManager alarmManager = new AlarmManager();
-    private final ClockFace clockFace = new ClockFace();
-    private final GearChain gearChain = new GearChain();
+    private final ClockFace1 clockFace = new ClockFace1();
+    private final GearChain1 gearChain = new GearChain1();
     
     public RelojAnalogico() {
         setPreferredSize(new java.awt.Dimension(600, 600));
@@ -41,7 +41,7 @@ public class RelojAnalogico extends JPanel {
         try {
             backgroundImage = ImageIO.read(new File("background.jpg"));
         } catch (IOException ex) {
-            ex.printStackTrace();
+            System.out.println(ex.getMessage());
         }
         
         ScheduledExecutorService executor = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
