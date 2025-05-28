@@ -1,0 +1,38 @@
+Set Nom := {a, b, cde, 1, 3xy};
+Set L := {a, b, c};
+Sets;
+	//>> Nom, L
+Showsets;
+	//>> Nom := {a, b, cde, 1, 3xy}
+	//>> L := {a, b, c}
+
+Union Nom, L;	// Nom Union L // L Union Nom
+	//>> {a, b, cde, 1, 3xy}
+
+Nom intersection L;	// Interseccion Nom, L // L intersection Nom
+	//>> {a, b}
+
+Sets;
+	//>>Nom, L
+
+SetUnion X, Nom, L;	// Set X := Nom Union L;
+Sets;
+	//>> Nom, L, X
+
+Set y := Nom intersection L; // Set intersection y, Nom, L;
+
+ClearSet Nom;
+PrintSet Nom;
+	//>> Nom := {}
+
+Sets;
+	//>> Nom, L, X, y
+
+Delete Nom;
+PrintSet Nom;
+	// Conjunto inexistente
+
+Sets;
+	//>> L, X, y;
+
+// TAREA: utilizando flex, reconocer lo que sea que se escriba y cuando se presione enter, se debe mostrar el resultado de la operación en pares, por ejemplo, |ID, Nom|, |ID, L| ...
