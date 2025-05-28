@@ -29,7 +29,7 @@
 %%
 
 int main(void) {
-    printf(">> Scanner iniciado. Escribe tus comandos y pulsa Enter.\n");
+    printf(">> Scanner iniciado. Escribe los comandos y pulsa Enter.\n");
     yylex();
     return 0;
 }

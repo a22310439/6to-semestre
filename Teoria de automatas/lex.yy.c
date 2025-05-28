@@ -404,7 +404,7 @@ static char *yy_last_accepting_cpos;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "scanner.l"
+#line 1 ".\\Teoria de automatas\\scanner.l"
 #define INITIAL 0
 #line 410 "lex.yy.c"
 
@@ -557,7 +557,7 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
 
-#line 3 "scanner.l"
+#line 3 ".\\Teoria de automatas\\scanner.l"
 
 
 #line 564 "lex.yy.c"
@@ -645,68 +645,68 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 5 "scanner.l"
+#line 5 ".\\Teoria de automatas\\scanner.l"
 {
     printf("|CMD, %s|", yytext);
 }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 9 "scanner.l"
+#line 9 ".\\Teoria de automatas\\scanner.l"
 { printf("|ASSIGN, %s|", yytext); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 10 "scanner.l"
+#line 10 ".\\Teoria de automatas\\scanner.l"
 { printf("|LBRACE, %s|", yytext); }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 11 "scanner.l"
+#line 11 ".\\Teoria de automatas\\scanner.l"
 { printf("|RBRACE, %s|", yytext); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 12 "scanner.l"
+#line 12 ".\\Teoria de automatas\\scanner.l"
 { printf("|COMMA, %s|", yytext); }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 13 "scanner.l"
+#line 13 ".\\Teoria de automatas\\scanner.l"
 { printf("|SEMICOLON, %s|", yytext); }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 15 "scanner.l"
+#line 15 ".\\Teoria de automatas\\scanner.l"
 {
     printf("|ID, %s|", yytext);
 }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 19 "scanner.l"
+#line 19 ".\\Teoria de automatas\\scanner.l"
 {
     printf("|ELEMENT, %s|", yytext);
 }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 23 "scanner.l"
+#line 23 ".\\Teoria de automatas\\scanner.l"
 { /* nada */ }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 25 "scanner.l"
+#line 25 ".\\Teoria de automatas\\scanner.l"
 { putchar('\n'); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 27 "scanner.l"
+#line 27 ".\\Teoria de automatas\\scanner.l"
 { /* nada */ }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 29 "scanner.l"
+#line 29 ".\\Teoria de automatas\\scanner.l"
 ECHO;
 	YY_BREAK
 #line 713 "lex.yy.c"
@@ -1595,11 +1595,11 @@ int main()
 	return 0;
 	}
 #endif
-#line 29 "scanner.l"
+#line 29 ".\\Teoria de automatas\\scanner.l"
 
 
 int main(void) {
-    printf(">> Scanner iniciado. Escribe tus comandos y pulsa Enter.\n");
+    printf(">> Scanner iniciado. Escribe los comandos y pulsa Enter.\n");
     yylex();
     return 0;
 }
