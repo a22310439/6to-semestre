@@ -1,5 +1,3 @@
-%option noyywrap   
-
 %%
 
 "SetUnion"|"ClearSet"|"PrintSet"|"Showsets"|"Delete"|"Union"|"intersection"|"Sets"|"Set" {
@@ -7,8 +5,8 @@
 }
 
 ":="              { printf("|ASSIGN, %s|", yytext); }
-"\\{"             { printf("|LBRACE, %s|", yytext); }
-"\\}"             { printf("|RBRACE, %s|", yytext); }
+"{"             { printf("|LBRACE, %s|", yytext); }
+"}"             { printf("|RBRACE, %s|", yytext); }
 ","               { printf("|COMMA, %s|", yytext); }
 ";"               { printf("|SEMICOLON, %s|", yytext); }
 
