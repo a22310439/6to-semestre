@@ -1,33 +1,44 @@
+%{
+#include "parser.tab.h"
+#include <string.h>
+%}
+
+%option yylineno noyywrap
+
 %%
 
-"SetUnion"|"ClearSet"|"PrintSet"|"Showsets"|"Delete"|"Union"|"intersection"|"Sets"|"Set" {
-    printf("|CMD, %s|", yytext);
-}
+"SetUnion"        { return SETUNION; }
+"ClearSet"        { return CLEARSET; }
+"PrintSet"        { return PRINTSET; }
+"Showsets"        { return SHOWSETS; }
+"Delete"          { return DELETESET; }
+"Union"           { return UNIONSET; }
+"intersection"    { return INTERSECTION; }
+"Sets"            { return SETS; }
+"Set"             { return SET;    }
+"Exit"            { return EXITCMD; }
 
-":="              { printf("|ASSIGN, %s|", yytext); }
-"{"             { printf("|LBRACE, %s|", yytext); }
-"}"             { printf("|RBRACE, %s|", yytext); }
-","               { printf("|COMMA, %s|", yytext); }
-";"               { printf("|SEMICOLON, %s|", yytext); }
+":="              { return ASSIGN; }
+"{"               { return LBRACE; }
+"}"               { return RBRACE; }
+","               { return COMMA; }
+";"               { return SEMICOLON; }
 
 [A-Za-z][A-Za-z0-9]* {
-    printf("|ID, %s|", yytext);
+    yylval.str = strdup(yytext);
+    return ID;
 }
 
 [0-9]+[A-Za-z0-9]* {
-    printf("|ELEMENT, %s|", yytext);
+    yylval.str = strdup(yytext);
+    return ELEMENT;
 }
 
-[ \t]+            { /* nada */ }
+[ \t]+  { /* nada */ }
 
-\n                { putchar('\n'); }
+\n      { /* nada */ }
 
-.                 { /* nada */ }
+.       { /* nada */ }
 
 %%
 
-int main(void) {
-    printf(">> Scanner iniciado. Escribe los comandos y pulsa Enter.\n");
-    yylex();
-    return 0;
-}
