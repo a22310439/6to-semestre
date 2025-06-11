@@ -67,28 +67,172 @@
 
 
 /* First part of user prologue.  */
-#line 5 "parser.y"
+#line 4 "parser.y"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-/* Prototipo de yylex() generado por Flex */
-extern int yylex(void);
-extern int yylineno;
-extern char *yytext;
-void yyerror(const char *s);
+/* ---- Estructura de datos para conjuntos ---- */
+#define MAXSETS 1000
+#define INITIAL_CAPACITY 4
 
-/* (Opcional) Función auxiliar para liberar un char* que está guardado 
-   en un char**, si alguna vez decides usarla. */
-static void free_strptr(char **p) {
-    if (*p) {
-        free(*p);
-        *p = NULL;
+typedef struct {
+    char *name;
+    char **elements;
+    int    count;
+    int    capacity;
+} Set;
+
+/* Arreglo global de conjuntos y contador */
+static Set sets[MAXSETS];
+static int setCount = 0;
+
+/* Puntero al conjunto que estamos definiendo en la regla SET … */
+static Set *currentSet = NULL;
+
+/* ---- Funciones auxiliares ---- */
+static Set *findSet(const char *name) {
+    for(int i = 0; i < setCount; i++)
+        if (strcmp(sets[i].name, name) == 0)
+            return &sets[i];
+    return NULL;
+}
+
+static Set *createOrGetSet(const char *name) {
+    Set *s = findSet(name);
+    if (s) {
+        /* Si ya existía, lo limpiamos para redefinirlo */
+        for(int i = 0; i < s->count; i++) free(s->elements[i]);
+        s->count = 0;
+        return s;
+    }
+    if (setCount >= MAXSETS) {
+        fprintf(stderr, "Error: número máximo de conjuntos alcanzado\n");
+        exit(1);
+    }
+    s = &sets[setCount++];
+    s->name     = strdup(name);
+    s->capacity = INITIAL_CAPACITY;
+    s->elements = malloc(s->capacity * sizeof(char*));
+    s->count    = 0;
+    return s;
+}
+
+static void addElement(Set *s, const char *elem) {
+    if (!s) return;
+    /* evitamos duplicados */
+    for(int i = 0; i < s->count; i++)
+        if (strcmp(s->elements[i], elem) == 0)
+            return;
+    if (s->count >= s->capacity) {
+        s->capacity *= 2;
+        s->elements = realloc(s->elements, s->capacity * sizeof(char*));
+    }
+    s->elements[s->count++] = strdup(elem);
+}
+
+static void deleteSetFunc(const char *name) {
+    for(int i = 0; i < setCount; i++) {
+        if (strcmp(sets[i].name, name) == 0) {
+            free(sets[i].name);
+            for(int j=0;j<sets[i].count;j++) free(sets[i].elements[j]);
+            free(sets[i].elements);
+            /* compactamos el array */
+            for(int k=i;k<setCount-1;k++) sets[k]=sets[k+1];
+            setCount--;
+            return;
+        }
+    }
+    fprintf(stderr, "Warning: conjunto '%s' no existe (DeleteSet)\n", name);
+}
+
+static void clearSetFunc(const char *name) {
+    Set *s = findSet(name);
+    if (s) {
+        for(int i=0;i<s->count;i++) free(s->elements[i]);
+        s->count = 0;
+    } else {
+        fprintf(stderr, "Warning: conjunto '%s' no existe (ClearSet)\n", name);
     }
 }
 
-#line 92 "parser.tab.c"
+static void printSetFunc(const char *name) {
+    Set *s = findSet(name);
+    if (!s) {
+        fprintf(stderr, "Error: conjunto '%s' no existe (PrintSet)\n", name);
+        return;
+    }
+    printf("%s = { ", name);
+    for(int i=0;i<s->count;i++) {
+        printf("%s%s", s->elements[i], (i+1<s->count)?", ":" ");
+    }
+    printf("}\n");
+}
+
+static void showAllSets() {
+    if (setCount == 0) {
+        printf("No hay conjuntos definidos.\n");
+        return;
+    }
+    for(int i=0;i<setCount;i++) {
+        printSetFunc(sets[i].name);
+    }
+}
+
+static void unionSetsFunc(const char *n1, const char *n2) {
+    Set *a = findSet(n1), *b = findSet(n2);
+    if (!a || !b) {
+        fprintf(stderr, "Error: conjuntos para unión no encontrados\n");
+        return;
+    }
+    printf("Union(%s,%s) = { ", n1, n2);
+    /* imprimimos todos de 'a' y luego los de 'b' que no estén en 'a' */
+    int printed = 0;
+    for(int i=0;i<a->count;i++) {
+        if (printed++) printf(", ");
+        printf("%s", a->elements[i]);
+    }
+    for(int j=0;j<b->count;j++) {
+        int found = 0;
+        for(int i=0;i<a->count;i++)
+            if (strcmp(a->elements[i], b->elements[j])==0) { found=1; break; }
+        if (!found) {
+            if (printed++) printf(", ");
+            printf("%s", b->elements[j]);
+        }
+    }
+    printf(" }\n");
+}
+
+static void intersectSetsFunc(const char *n1, const char *n2) {
+    Set *a = findSet(n1), *b = findSet(n2);
+    if (!a || !b) {
+        fprintf(stderr, "Error: conjuntos para intersección no encontrados\n");
+        return;
+    }
+    printf("Intersection(%s,%s) = { ", n1, n2);
+    int printed = 0;
+    for(int i=0;i<a->count;i++){
+        for(int j=0;j<b->count;j++){
+            if (strcmp(a->elements[i], b->elements[j])==0){
+                if (printed++) printf(", ");
+                printf("%s", a->elements[i]);
+                break;
+            }
+        }
+    }
+    printf(" }\n");
+}
+
+/* Prototipos del parser */
+extern int yylex(void);
+extern int yylineno;
+void yyerror(const char *s) {
+    fprintf(stderr, "** yyerror (linea %d): %s\n", yylineno, s);
+}
+
+#line 236 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -136,11 +280,11 @@ enum yysymbol_kind_t
   YYSYMBOL_EXITCMD = 17,                   /* EXITCMD  */
   YYSYMBOL_ID = 18,                        /* ID  */
   YYSYMBOL_ELEMENT = 19,                   /* ELEMENT  */
-  YYSYMBOL_NEWLINE = 20,                   /* NEWLINE  */
-  YYSYMBOL_YYACCEPT = 21,                  /* $accept  */
-  YYSYMBOL_program = 22,                   /* program  */
-  YYSYMBOL_statement = 23,                 /* statement  */
-  YYSYMBOL_instruction = 24,               /* instruction  */
+  YYSYMBOL_YYACCEPT = 20,                  /* $accept  */
+  YYSYMBOL_program = 21,                   /* program  */
+  YYSYMBOL_statement = 22,                 /* statement  */
+  YYSYMBOL_instruction = 23,               /* instruction  */
+  YYSYMBOL_24_1 = 24,                      /* $@1  */
   YYSYMBOL_element_list = 25               /* element_list  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
@@ -469,19 +613,19 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  2
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   37
+#define YYLAST   31
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  21
+#define YYNTOKENS  20
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  5
+#define YYNNTS  6
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  17
+#define YYNRULES  16
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  39
+#define YYNSTATES  35
 
 /* YYMAXUTOK -- Last valid token kind.  */
-#define YYMAXUTOK   275
+#define YYMAXUTOK   274
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -522,15 +666,15 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
-      15,    16,    17,    18,    19,    20
+      15,    16,    17,    18,    19
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    72,    72,    74,    78,    82,    87,    96,   102,   107,
-     112,   116,   121,   127,   133,   137,   148,   153
+       0,   184,   184,   186,   190,   191,   196,   207,   206,   216,
+     221,   225,   230,   235,   240,   249,   254
 };
 #endif
 
@@ -549,8 +693,8 @@ static const char *const yytname[] =
   "\"end of file\"", "error", "\"invalid token\"", "SETUNION", "CLEARSET",
   "PRINTSET", "SHOWSETS", "DELETESET", "UNIONSET", "INTERSECTION", "SETS",
   "SET", "ASSIGN", "LBRACE", "RBRACE", "COMMA", "SEMICOLON", "EXITCMD",
-  "ID", "ELEMENT", "NEWLINE", "$accept", "program", "statement",
-  "instruction", "element_list", YY_NULLPTR
+  "ID", "ELEMENT", "$accept", "program", "statement", "instruction", "$@1",
+  "element_list", YY_NULLPTR
 };
 
 static const char *
@@ -574,10 +718,10 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-     -15,     0,   -15,   -14,    -4,    -3,     1,   -15,     2,     3,
-       4,   -15,     5,     8,   -15,     9,   -15,    11,   -15,   -15,
-     -15,    12,    13,     6,   -15,   -15,    14,    15,    16,    17,
-     -15,   -15,   -15,    10,   -15,    -2,   -15,    18,   -15
+     -15,     0,   -15,   -14,   -10,    -8,    -4,   -15,    -3,     1,
+       2,     5,   -15,     6,   -15,     3,   -15,   -15,   -15,     8,
+       4,   -15,   -15,     7,     9,    11,   -15,   -15,   -15,    10,
+     -15,    -2,   -15,    12,   -15
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -586,21 +730,21 @@ static const yytype_int8 yypact[] =
 static const yytype_int8 yydefact[] =
 {
        2,     0,     1,     0,     0,     0,     0,    10,     0,     0,
-       0,    14,     0,     0,     3,     0,     6,     0,     8,     9,
-      11,     0,     0,     0,     5,     4,     0,     0,     0,     0,
-       7,    12,    13,     0,    16,     0,    15,     0,    17
+       0,     0,     3,     0,     6,     0,    11,     9,    12,     0,
+       0,     5,     4,     0,     0,     0,    13,    14,     7,     0,
+      15,     0,     8,     0,    16
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -15,   -15,   -15,   -15,   -15
+     -15,   -15,   -15,   -15,   -15,   -15
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     1,    14,    15,    35
+       0,     1,    12,    13,    29,    31
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -608,42 +752,42 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-       2,     3,    16,     4,     5,     6,     7,     8,     9,    10,
-      11,    12,    36,    37,    17,    18,     0,    13,    29,    19,
-      20,    21,    22,    23,    24,    25,    26,    27,    28,    34,
-      33,     0,    30,    31,    32,     0,     0,    38
+       2,     3,    14,     4,     5,     6,     7,     8,    15,     9,
+      16,    10,    32,    33,    17,    18,    25,    11,    23,    19,
+      20,    21,    22,    24,    28,    26,     0,    27,     0,    30,
+       0,    34
 };
 
 static const yytype_int8 yycheck[] =
 {
-       0,     1,    16,     3,     4,     5,     6,     7,     8,     9,
-      10,    11,    14,    15,    18,    18,    -1,    17,    12,    18,
-      18,    18,    18,    18,    16,    16,    15,    15,    15,    19,
-      13,    -1,    18,    18,    18,    -1,    -1,    19
+       0,     1,    16,     3,     4,     5,     6,     7,    18,     9,
+      18,    11,    14,    15,    18,    18,    12,    17,    15,    18,
+      18,    16,    16,    15,    13,    18,    -1,    18,    -1,    19,
+      -1,    19
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,    22,     0,     1,     3,     4,     5,     6,     7,     8,
-       9,    10,    11,    17,    23,    24,    16,    18,    18,    18,
-      18,    18,    18,    18,    16,    16,    15,    15,    15,    12,
-      18,    18,    18,    13,    19,    25,    14,    15,    19
+       0,    21,     0,     1,     3,     4,     5,     6,     7,     9,
+      11,    17,    22,    23,    16,    18,    18,    18,    18,    18,
+      18,    16,    16,    15,    15,    12,    18,    18,    13,    24,
+      19,    25,    14,    15,    19
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    21,    22,    22,    23,    23,    23,    24,    24,    24,
-      24,    24,    24,    24,    24,    24,    25,    25
+       0,    20,    21,    21,    22,    22,    22,    24,    23,    23,
+      23,    23,    23,    23,    23,    25,    25
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     0,     2,     2,     2,     2,     4,     2,     2,
-       1,     2,     4,     4,     1,     6,     1,     3
+       0,     2,     0,     2,     2,     2,     2,     0,     7,     2,
+       1,     2,     2,     4,     4,     1,     3
 };
 
 
@@ -1106,136 +1250,115 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 4: /* statement: instruction SEMICOLON  */
-#line 79 "parser.y"
-        {
-            /* Si llegamos aquí es porque instruction se procesó e imprimió en su propia acción */
-        }
-#line 1115 "parser.tab.c"
-    break;
-
   case 5: /* statement: EXITCMD SEMICOLON  */
-#line 83 "parser.y"
+#line 192 "parser.y"
         {
-            printf(">> Se recibio 'Exit'. Terminando la ejecucion del analizador.\n");
+            printf(">> Saliendo… ¡adiós!\n");
             exit(0);
         }
-#line 1124 "parser.tab.c"
+#line 1260 "parser.tab.c"
     break;
 
   case 6: /* statement: error SEMICOLON  */
-#line 88 "parser.y"
+#line 197 "parser.y"
         {
-            yyerrok;  /* limpiamos el estado de error */
-            printf("** Error de sintaxis (línea %d). Se recupera hasta ';'.\n", yylineno);
+            yyerrok;
+            fprintf(stderr, "** Error de sintaxis (línea %d). Ignoramos hasta ';'.\n", yylineno);
         }
-#line 1133 "parser.tab.c"
+#line 1269 "parser.tab.c"
     break;
 
-  case 7: /* instruction: SETUNION ID COMMA ID  */
-#line 97 "parser.y"
+  case 7: /* $@1: %empty  */
+#line 207 "parser.y"
         {
-            printf(">> Ejecutando: SetUnion con conjuntos '%s' y '%s'\n", (yyvsp[-2].str), (yyvsp[0].str));
+            currentSet = createOrGetSet((yyvsp[-2].str));
             free((yyvsp[-2].str));
-            free((yyvsp[0].str));
         }
-#line 1143 "parser.tab.c"
+#line 1278 "parser.tab.c"
     break;
 
-  case 8: /* instruction: CLEARSET ID  */
-#line 103 "parser.y"
+  case 8: /* instruction: SET ID ASSIGN LBRACE $@1 element_list RBRACE  */
+#line 212 "parser.y"
         {
-            printf(">> Ejecutando: ClearSet sobre el conjunto '%s'\n", (yyvsp[0].str));
-            free((yyvsp[0].str));
+            printf(">> Conjunto '%s' definido.\n", currentSet->name);
+            currentSet = NULL;
         }
-#line 1152 "parser.tab.c"
+#line 1287 "parser.tab.c"
     break;
 
   case 9: /* instruction: PRINTSET ID  */
-#line 108 "parser.y"
+#line 217 "parser.y"
         {
-            printf(">> Ejecutando: PrintSet de '%s'\n", (yyvsp[0].str));
+            printSetFunc((yyvsp[0].str));
             free((yyvsp[0].str));
         }
-#line 1161 "parser.tab.c"
+#line 1296 "parser.tab.c"
     break;
 
   case 10: /* instruction: SHOWSETS  */
-#line 113 "parser.y"
+#line 222 "parser.y"
         {
-            printf(">> Ejecutando: ShowSets (mostrar todos los conjuntos)\n");
+            showAllSets();
         }
-#line 1169 "parser.tab.c"
+#line 1304 "parser.tab.c"
     break;
 
-  case 11: /* instruction: DELETESET ID  */
-#line 117 "parser.y"
+  case 11: /* instruction: CLEARSET ID  */
+#line 226 "parser.y"
         {
-            printf(">> Ejecutando: DeleteSet del conjunto '%s'\n", (yyvsp[0].str));
+            clearSetFunc((yyvsp[0].str));
             free((yyvsp[0].str));
         }
-#line 1178 "parser.tab.c"
+#line 1313 "parser.tab.c"
     break;
 
-  case 12: /* instruction: UNIONSET ID COMMA ID  */
-#line 122 "parser.y"
+  case 12: /* instruction: DELETESET ID  */
+#line 231 "parser.y"
         {
-            printf(">> Ejecutando: Union (operación unión) de '%s' y '%s'\n", (yyvsp[-2].str), (yyvsp[0].str));
-            free((yyvsp[-2].str));
+            deleteSetFunc((yyvsp[0].str));
             free((yyvsp[0].str));
         }
-#line 1188 "parser.tab.c"
+#line 1322 "parser.tab.c"
     break;
 
-  case 13: /* instruction: INTERSECTION ID COMMA ID  */
-#line 128 "parser.y"
+  case 13: /* instruction: SETUNION ID COMMA ID  */
+#line 236 "parser.y"
         {
-            printf(">> Ejecutando: Intersection de '%s' y '%s'\n", (yyvsp[-2].str), (yyvsp[0].str));
-            free((yyvsp[-2].str));
+            unionSetsFunc((yyvsp[-2].str), (yyvsp[0].str));
+            free((yyvsp[-2].str)); free((yyvsp[0].str));
+        }
+#line 1331 "parser.tab.c"
+    break;
+
+  case 14: /* instruction: INTERSECTION ID COMMA ID  */
+#line 241 "parser.y"
+        {
+            intersectSetsFunc((yyvsp[-2].str), (yyvsp[0].str));
+            free((yyvsp[-2].str)); free((yyvsp[0].str));
+        }
+#line 1340 "parser.tab.c"
+    break;
+
+  case 15: /* element_list: ELEMENT  */
+#line 250 "parser.y"
+        {
+            addElement(currentSet, (yyvsp[0].str));
             free((yyvsp[0].str));
         }
-#line 1198 "parser.tab.c"
+#line 1349 "parser.tab.c"
     break;
 
-  case 14: /* instruction: SETS  */
-#line 134 "parser.y"
+  case 16: /* element_list: element_list COMMA ELEMENT  */
+#line 255 "parser.y"
         {
-            printf(">> Ejecutando: Sets (definir o listar estructuras de datos de conjuntos)\n");
-        }
-#line 1206 "parser.tab.c"
-    break;
-
-  case 15: /* instruction: SET ID ASSIGN LBRACE element_list RBRACE  */
-#line 138 "parser.y"
-        {
-            printf(">> Ejecutando: Set '%s' := { ", (yyvsp[-4].str));
-            /* element_list ya imprimió todos los elementos separados por comas */
-            printf(" }\n");
-            free((yyvsp[-4].str));
-        }
-#line 1217 "parser.tab.c"
-    break;
-
-  case 16: /* element_list: ELEMENT  */
-#line 149 "parser.y"
-        {
-            printf("%s", (yyvsp[0].str));
+            addElement(currentSet, (yyvsp[0].str));
             free((yyvsp[0].str));
         }
-#line 1226 "parser.tab.c"
-    break;
-
-  case 17: /* element_list: element_list COMMA ELEMENT  */
-#line 154 "parser.y"
-        {
-            printf(", %s", (yyvsp[0].str));
-            free((yyvsp[0].str));
-        }
-#line 1235 "parser.tab.c"
+#line 1358 "parser.tab.c"
     break;
 
 
-#line 1239 "parser.tab.c"
+#line 1362 "parser.tab.c"
 
       default: break;
     }
@@ -1428,20 +1551,11 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 160 "parser.y"
+#line 261 "parser.y"
 
-
-/*------------------------------------------------------------
- * Código en C adicional
- *------------------------------------------------------------*/
-
-void yyerror(const char *s) {
-    fprintf(stderr, "** yyerror (línea %d): %s\n", yylineno, s);
-}
 
 int main(void) {
-    printf(">> Analizador sintactico iniciado. Escribe tus comandos, terminados con ';'.\n");
-    printf("   Para salir, escribe: Exit;\n\n");
+    printf(">> Analizador iniciado. Termina instrucciones con ';', 'Exit;' para salir.\n\n");
     yylineno = 1;
     yyparse();
     return 0;

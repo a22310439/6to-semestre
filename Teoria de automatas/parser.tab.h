@@ -70,8 +70,7 @@ extern int yydebug;
     SEMICOLON = 271,               /* SEMICOLON  */
     EXITCMD = 272,                 /* EXITCMD  */
     ID = 273,                      /* ID  */
-    ELEMENT = 274,                 /* ELEMENT  */
-    NEWLINE = 275                  /* NEWLINE  */
+    ELEMENT = 274                  /* ELEMENT  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -80,11 +79,11 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 51 "parser.y"
+#line 175 "parser.y"
 
-    char *str;    /* usado para ID y ELEMENT */
+    char *str;
 
-#line 88 "parser.tab.h"
+#line 87 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

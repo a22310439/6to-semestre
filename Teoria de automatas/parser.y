@@ -1,73 +1,185 @@
 /*------------------------------------------------------------
- * parser.y (versión corregida)
+ * parser.y — ahora con ejecución real de operaciones sobre conjuntos
  *------------------------------------------------------------*/
-
 %{
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-/* Prototipo de yylex() generado por Flex */
+/* ---- Estructura de datos para conjuntos ---- */
+#define MAXSETS 1000
+#define INITIAL_CAPACITY 4
+
+typedef struct {
+    char *name;
+    char **elements;
+    int    count;
+    int    capacity;
+} Set;
+
+/* Arreglo global de conjuntos y contador */
+static Set sets[MAXSETS];
+static int setCount = 0;
+
+/* Puntero al conjunto que estamos definiendo en la regla SET … */
+static Set *currentSet = NULL;
+
+/* ---- Funciones auxiliares ---- */
+static Set *findSet(const char *name) {
+    for(int i = 0; i < setCount; i++)
+        if (strcmp(sets[i].name, name) == 0)
+            return &sets[i];
+    return NULL;
+}
+
+static Set *createOrGetSet(const char *name) {
+    Set *s = findSet(name);
+    if (s) {
+        /* Si ya existía, lo limpiamos para redefinirlo */
+        for(int i = 0; i < s->count; i++) free(s->elements[i]);
+        s->count = 0;
+        return s;
+    }
+    if (setCount >= MAXSETS) {
+        fprintf(stderr, "Error: número máximo de conjuntos alcanzado\n");
+        exit(1);
+    }
+    s = &sets[setCount++];
+    s->name     = strdup(name);
+    s->capacity = INITIAL_CAPACITY;
+    s->elements = malloc(s->capacity * sizeof(char*));
+    s->count    = 0;
+    return s;
+}
+
+static void addElement(Set *s, const char *elem) {
+    if (!s) return;
+    /* evitamos duplicados */
+    for(int i = 0; i < s->count; i++)
+        if (strcmp(s->elements[i], elem) == 0)
+            return;
+    if (s->count >= s->capacity) {
+        s->capacity *= 2;
+        s->elements = realloc(s->elements, s->capacity * sizeof(char*));
+    }
+    s->elements[s->count++] = strdup(elem);
+}
+
+static void deleteSetFunc(const char *name) {
+    for(int i = 0; i < setCount; i++) {
+        if (strcmp(sets[i].name, name) == 0) {
+            free(sets[i].name);
+            for(int j=0;j<sets[i].count;j++) free(sets[i].elements[j]);
+            free(sets[i].elements);
+            /* compactamos el array */
+            for(int k=i;k<setCount-1;k++) sets[k]=sets[k+1];
+            setCount--;
+            return;
+        }
+    }
+    fprintf(stderr, "Warning: conjunto '%s' no existe (DeleteSet)\n", name);
+}
+
+static void clearSetFunc(const char *name) {
+    Set *s = findSet(name);
+    if (s) {
+        for(int i=0;i<s->count;i++) free(s->elements[i]);
+        s->count = 0;
+    } else {
+        fprintf(stderr, "Warning: conjunto '%s' no existe (ClearSet)\n", name);
+    }
+}
+
+static void printSetFunc(const char *name) {
+    Set *s = findSet(name);
+    if (!s) {
+        fprintf(stderr, "Error: conjunto '%s' no existe (PrintSet)\n", name);
+        return;
+    }
+    printf("%s = { ", name);
+    for(int i=0;i<s->count;i++) {
+        printf("%s%s", s->elements[i], (i+1<s->count)?", ":" ");
+    }
+    printf("}\n");
+}
+
+static void showAllSets() {
+    if (setCount == 0) {
+        printf("No hay conjuntos definidos.\n");
+        return;
+    }
+    for(int i=0;i<setCount;i++) {
+        printSetFunc(sets[i].name);
+    }
+}
+
+static void unionSetsFunc(const char *n1, const char *n2) {
+    Set *a = findSet(n1), *b = findSet(n2);
+    if (!a || !b) {
+        fprintf(stderr, "Error: conjuntos para unión no encontrados\n");
+        return;
+    }
+    printf("Union(%s,%s) = { ", n1, n2);
+    /* imprimimos todos de 'a' y luego los de 'b' que no estén en 'a' */
+    int printed = 0;
+    for(int i=0;i<a->count;i++) {
+        if (printed++) printf(", ");
+        printf("%s", a->elements[i]);
+    }
+    for(int j=0;j<b->count;j++) {
+        int found = 0;
+        for(int i=0;i<a->count;i++)
+            if (strcmp(a->elements[i], b->elements[j])==0) { found=1; break; }
+        if (!found) {
+            if (printed++) printf(", ");
+            printf("%s", b->elements[j]);
+        }
+    }
+    printf(" }\n");
+}
+
+static void intersectSetsFunc(const char *n1, const char *n2) {
+    Set *a = findSet(n1), *b = findSet(n2);
+    if (!a || !b) {
+        fprintf(stderr, "Error: conjuntos para intersección no encontrados\n");
+        return;
+    }
+    printf("Intersection(%s,%s) = { ", n1, n2);
+    int printed = 0;
+    for(int i=0;i<a->count;i++){
+        for(int j=0;j<b->count;j++){
+            if (strcmp(a->elements[i], b->elements[j])==0){
+                if (printed++) printf(", ");
+                printf("%s", a->elements[i]);
+                break;
+            }
+        }
+    }
+    printf(" }\n");
+}
+
+/* Prototipos del parser */
 extern int yylex(void);
 extern int yylineno;
-extern char *yytext;
-void yyerror(const char *s);
-
-/* (Opcional) Función auxiliar para liberar un char* que está guardado 
-   en un char**, si alguna vez decides usarla. */
-static void free_strptr(char **p) {
-    if (*p) {
-        free(*p);
-        *p = NULL;
-    }
+void yyerror(const char *s) {
+    fprintf(stderr, "** yyerror (linea %d): %s\n", yylineno, s);
 }
 %}
 
-/* 1) Declaración de tokens (coinciden con los return del scanner.l) */
-%token SETUNION
-%token CLEARSET
-%token PRINTSET
-%token SHOWSETS
-%token DELETESET
-%token UNIONSET
-%token INTERSECTION
-%token SETS
-%token SET
+/* Tokens (tal como en tu scanner.l) */
+%token SETUNION CLEARSET PRINTSET SHOWSETS DELETESET UNIONSET INTERSECTION SETS SET
+%token ASSIGN LBRACE RBRACE COMMA SEMICOLON EXITCMD
+%token ID ELEMENT
 
-%token ASSIGN
-%token LBRACE
-%token RBRACE
-%token COMMA
-%token SEMICOLON
-
-%token EXITCMD    /* palabra reservada para salir */
-
-%token ID
-%token ELEMENT
-
-%token NEWLINE    /* opcional, si quieres contar líneas */
-
-/* 2) Unión de valores semánticos */
+/* Unión semántica */
 %union {
-    char *str;    /* usado para ID y ELEMENT */
+    char *str;
 }
 
-/* 3) Asociar tokens que llevan valor a la unión */
-%type <str> ID
-%type <str> ELEMENT
-
-/* 4) Precedencia (si llegara a ser necesaria) */
-%left COMMA
-%left ASSIGN
-
-/* 5) Prototipo de yyparse */
-%language "C"
+/* Asociamos tipos */
+%type <str> ID ELEMENT
 
 %%
-
-/*------------------------------------------------------------
- * Gramática
- *------------------------------------------------------------*/
 
 program:
       /* vacío */
@@ -76,100 +188,80 @@ program:
 
 statement:
       instruction SEMICOLON
-        {
-            /* Si llegamos aquí es porque instruction se procesó e imprimió en su propia acción */
-        }
     | EXITCMD SEMICOLON
         {
-            printf(">> Se recibio 'Exit'. Terminando la ejecucion del analizador.\n");
+            printf(">> Saliendo… ¡adiós!\n");
             exit(0);
         }
     | error SEMICOLON
         {
-            yyerrok;  /* limpiamos el estado de error */
-            printf("** Error de sintaxis (línea %d). Se recupera hasta ';'.\n", yylineno);
+            yyerrok;
+            fprintf(stderr, "** Error de sintaxis (línea %d). Ignoramos hasta ';'.\n", yylineno);
         }
     ;
 
-/* instruction: cada comando válido con sus parámetros */
+/* ---- Aquí vienen las acciones reales ---- */
 instruction:
-      SETUNION ID COMMA ID
+    /* definición de un conjunto */
+    SET ID ASSIGN LBRACE
         {
-            printf(">> Ejecutando: SetUnion con conjuntos '%s' y '%s'\n", $2, $4);
-            free($2);
-            free($4);
-        }
-    | CLEARSET ID
-        {
-            printf(">> Ejecutando: ClearSet sobre el conjunto '%s'\n", $2);
+            currentSet = createOrGetSet($2);
             free($2);
         }
-    | PRINTSET ID
+    element_list RBRACE
         {
-            printf(">> Ejecutando: PrintSet de '%s'\n", $2);
+            printf(">> Conjunto '%s' definido.\n", currentSet->name);
+            currentSet = NULL;
+        }
+  | PRINTSET ID
+        {
+            printSetFunc($2);
             free($2);
         }
-    | SHOWSETS
+  | SHOWSETS
         {
-            printf(">> Ejecutando: ShowSets (mostrar todos los conjuntos)\n");
+            showAllSets();
         }
-    | DELETESET ID
+  | CLEARSET ID
         {
-            printf(">> Ejecutando: DeleteSet del conjunto '%s'\n", $2);
+            clearSetFunc($2);
             free($2);
         }
-    | UNIONSET ID COMMA ID
+  | DELETESET ID
         {
-            printf(">> Ejecutando: Union (operación unión) de '%s' y '%s'\n", $2, $4);
-            free($2);
-            free($4);
-        }
-    | INTERSECTION ID COMMA ID
-        {
-            printf(">> Ejecutando: Intersection de '%s' y '%s'\n", $2, $4);
-            free($2);
-            free($4);
-        }
-    | SETS
-        {
-            printf(">> Ejecutando: Sets (definir o listar estructuras de datos de conjuntos)\n");
-        }
-    | SET ID ASSIGN LBRACE element_list RBRACE
-        {
-            printf(">> Ejecutando: Set '%s' := { ", $2);
-            /* element_list ya imprimió todos los elementos separados por comas */
-            printf(" }\n");
+            deleteSetFunc($2);
             free($2);
         }
-    ;
+  | SETUNION ID COMMA ID
+        {
+            unionSetsFunc($2, $4);
+            free($2); free($4);
+        }
+  | INTERSECTION ID COMMA ID
+        {
+            intersectSetsFunc($2, $4);
+            free($2); free($4);
+        }
+  ;
 
-/* element_list: lista recursiva de elementos separados por comas */
+/* element_list: va añadiendo elementos a currentSet */
 element_list:
       ELEMENT
         {
-            printf("%s", $1);
+            addElement(currentSet, $1);
             free($1);
         }
     | element_list COMMA ELEMENT
         {
-            printf(", %s", $3);
+            addElement(currentSet, $3);
             free($3);
         }
     ;
 
 %%
 
-/*------------------------------------------------------------
- * Código en C adicional
- *------------------------------------------------------------*/
-
-void yyerror(const char *s) {
-    fprintf(stderr, "** yyerror (línea %d): %s\n", yylineno, s);
-}
-
 int main(void) {
-    printf(">> Analizador sintactico iniciado. Escribe tus comandos, terminados con ';'.\n");
-    printf("   Para salir, escribe: Exit;\n\n");
+    printf(">> Analizador iniciado. Termina instrucciones con ';', 'Exit;' para salir.\n\n");
     yylineno = 1;
     yyparse();
     return 0;
