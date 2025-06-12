@@ -9,13 +9,13 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-public class Graficos3Dold {
+public class GraficosProyecto {
     private BufferedImage sceneBuffer;
     private int[]         scenePixels;
     private final JLabel  canvasLabel;
     private final JFrame  ventana;
 
-    public Graficos3Dold(JFrame ventana) {
+    public GraficosProyecto(JFrame ventana) {
         this.ventana = ventana;
         initSceneBuffer();
 

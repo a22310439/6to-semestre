@@ -1,121 +1,314 @@
-// Main.java
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
 
-public class Main {
-    // Representación 3D
-    static class Vector3 {
-        float x, y, z;
-        Vector3(float x, float y, float z) { this.x = x; this.y = y; this.z = z; }
-        Vector3 subtract(Vector3 o) { return new Vector3(x - o.x, y - o.y, z - o.z); }
-        Vector3 cross(Vector3 o) {
-            return new Vector3(
-                y * o.z - z * o.y,
-                z * o.x - x * o.z,
-                x * o.y - y * o.x
-            );
-        }
-        Vector3 normalize() {
-            float len = (float)Math.sqrt(x*x + y*y + z*z);
-            return new Vector3(x/len, y/len, z/len);
-        }
-    }
-    static class Face {
-        int[] idx; Color color;
-        Face(int[] idx, Color c) { this.idx = idx; this.color = c; }
-    }
+public class Main extends JFrame {
+    private final GraficosProyecto graficos;
+    private final JLabel rotationLabel;
+    private final JLabel shapeLabel;
 
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("3D Cube");
-        frame.setSize(800, 600);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Graficos3D g3 = new Graficos3D(frame);
+    // Proyección
+    private boolean perspective = false;
+    private final double focalLength    = 400;
+    private final double cameraDistance = 500;
+    private final double axisLength     = 200;
 
-        // Vértices y caras del cubo
-        Vector3[] verts = {
-            new Vector3(-1,-1,-1), new Vector3(1,-1,-1),
-            new Vector3(1,1,-1),   new Vector3(-1,1,-1),
-            new Vector3(-1,-1,1),  new Vector3(1,-1,1),
-            new Vector3(1,1,1),    new Vector3(-1,1,1)
-        };
-        Face[] faces = {
-            new Face(new int[]{0,1,2,3}, Color.RED),
-            new Face(new int[]{4,5,6,7}, Color.GREEN),
-            new Face(new int[]{0,1,5,4}, Color.BLUE),
-            new Face(new int[]{2,3,7,6}, Color.YELLOW),
-            new Face(new int[]{0,3,7,4}, Color.MAGENTA),
-            new Face(new int[]{1,2,6,5}, Color.CYAN)
-        };
-        final Vector3[] world = new Vector3[verts.length];
+    // Cámara
+    private double cameraYaw   = Math.toRadians(45);
+    private double cameraPitch = Math.toRadians(325);
+    private final double camRotSpeed = 0.01;
+    private int lastMouseX, lastMouseY;
 
-        // Estado interacción
-        final float[] angle = {0f,0f};
-        final float zoom = 1f;
+    // Traslación (posición del centro de la figura en el mundo)
+    private double tx = 0, ty = 0, tz = 0;
+    private final double transStep = 10;
 
-        // Rotación con mouse
-        frame.addMouseMotionListener(new MouseAdapter() {
-            int lastX, lastY;
+    // Rotación sobre su propio eje
+    private double rotX = 0, rotY = 0, rotZ = 0;
+    private boolean rotatingSelfX = false,
+                    rotatingSelfY = false,
+                    rotatingSelfZ = false;
+    private final double rotSpeed = 0.02;
+
+    // Órbita (rotación de la traslación alrededor del origen)
+    private boolean rotatingOrbit = false;
+    private char orbitAxis = ' ';  // 'X','Y','Z' o ' ' ninguno
+    private final double orbitSpeed = 0.02;
+
+    // Figuras
+    private final List<Figura3D> figuras = new ArrayList<>();
+    private int currentIndex = 0;
+
+    public Main() {
+        super("Visualizador 3D");
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setSize(800, 600);
+        setLocationRelativeTo(null);
+
+        graficos = new GraficosProyecto(this);
+
+        // Panel de estado
+        JPanel top = new JPanel(new BorderLayout());
+        rotationLabel = new JLabel("", SwingConstants.LEFT);
+        shapeLabel    = new JLabel("", SwingConstants.RIGHT);
+        top.add(rotationLabel, BorderLayout.WEST);
+        top.add(shapeLabel,    BorderLayout.EAST);
+        getContentPane().add(top, BorderLayout.NORTH);
+
+        // Cargar figuras
+        figuras.add(new Cubo(50));
+        figuras.add(new Esfera(50, 16, 16));
+        figuras.add(new Tetraedro(80));
+        figuras.add(new Decaedro(50));
+        figuras.add(new Curva(100, 20, 4 * Math.PI, 200));
+        figuras.add(new Superficie(-100, 100, -100, 100, 40, 40));
+        figuras.add(new Cilindro(0.0, 2 * Math.PI, 0.0, 2 * Math.PI, 200, 60));
+        updateShapeLabel();
+
+        // Timer para animación continua (~60 fps)
+        new Timer(16, e -> render()).start();
+
+        // Controles de teclado
+        setFocusable(true);
+        requestFocusInWindow();
+        addKeyListener(new KeyAdapter() {
             @Override
-            public void mousePressed(MouseEvent e) {
-                lastX = e.getX(); lastY = e.getY();
-            }
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                int dx = e.getX() - lastX;
-                int dy = e.getY() - lastY;
-                angle[1] += dx * 0.01f;
-                angle[0] += dy * 0.01f;
-                lastX = e.getX(); lastY = e.getY();
+            public void keyPressed(KeyEvent e) {
+                int code = e.getKeyCode();
+                switch (code) {
+                    case KeyEvent.VK_SPACE -> {
+                        currentIndex = (currentIndex + 1) % figuras.size();
+                        updateShapeLabel();
+                    }
+                    case KeyEvent.VK_R -> {
+                        tx = ty = tz = 0;
+                        rotX = rotY = rotZ = 0;
+                        rotatingSelfX = rotatingSelfY = rotatingSelfZ = false;
+                        rotatingOrbit = false;
+                        orbitAxis = ' ';
+                    }
+                    case KeyEvent.VK_P -> perspective = !perspective;
+                    case KeyEvent.VK_W -> ty += transStep;
+                    case KeyEvent.VK_S -> ty -= transStep;
+                    case KeyEvent.VK_A -> tz -= transStep;
+                    case KeyEvent.VK_D -> tz += transStep;
+                    case KeyEvent.VK_Q -> tx += transStep;
+                    case KeyEvent.VK_E -> tx -= transStep;
+
+                    // Flechas para órbita alrededor de ejes globales
+                    case KeyEvent.VK_LEFT -> {
+                        rotatingOrbit = !rotatingOrbit;
+                        orbitAxis = 'X';
+                        // desactivar rotación propia
+                        rotatingSelfX = rotatingSelfY = rotatingSelfZ = false;
+                    }
+                    case KeyEvent.VK_UP -> {
+                        rotatingOrbit = !rotatingOrbit;
+                        orbitAxis = 'Y';
+                        rotatingSelfX = rotatingSelfY = rotatingSelfZ = false;
+                    }
+                    case KeyEvent.VK_RIGHT -> {
+                        rotatingOrbit = !rotatingOrbit;
+                        orbitAxis = 'Z';
+                        rotatingSelfX = rotatingSelfY = rotatingSelfZ = false;
+                    }
+
+                    // Teclas para rotación propia
+                    case KeyEvent.VK_X -> {
+                        rotatingSelfZ = !rotatingSelfZ;
+                        rotatingSelfX = rotatingSelfY = false;
+                    }
+                    case KeyEvent.VK_Y -> {
+                        rotatingSelfY = !rotatingSelfY;
+                        rotatingSelfX = rotatingSelfZ = false;
+                    }
+                    case KeyEvent.VK_Z -> {
+                        rotatingSelfX = !rotatingSelfX;
+                        rotatingSelfY = rotatingSelfZ = false;
+                    }
+                }
             }
         });
 
-        frame.setVisible(true);
+        // Rotación cámara con mouse
+        getContentPane().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                lastMouseX = e.getX();
+                lastMouseY = e.getY();
+            }
+        });
+        getContentPane().addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                int dx = e.getX() - lastMouseX;
+                int dy = e.getY() - lastMouseY;
+                cameraYaw   += dx * camRotSpeed;
+                cameraPitch += dy * camRotSpeed;
+                lastMouseX = e.getX();
+                lastMouseY = e.getY();
+            }
+        });
 
-        new Timer(16, ev -> {
-            g3.clear(Color.BLACK);
-            // Transformación y proyección
-            for (int i = 0; i < verts.length; i++) {
-                Vector3 v = verts[i];
-                v = rotateX(v, angle[0]);
-                v = rotateY(v, angle[1]);
-                v = new Vector3(v.x*zoom, v.y*zoom, v.z*zoom + 4);
-                world[i] = v;
-            }
-            for (Face f : faces) {
-                if (!isBackface(world, f)) {
-                    Point p0 = project(world[f.idx[0]], g3);
-                    Point p1 = project(world[f.idx[1]], g3);
-                    Point p2 = project(world[f.idx[2]], g3);
-                    Point p3 = project(world[f.idx[3]], g3);
-                    g3.drawFilledTriangle(p0, p1, p2, f.color);
-                    g3.drawFilledTriangle(p0, p2, p3, f.color);
-                }
-            }
-            g3.present();
-        }).start();
+        setVisible(true);
     }
 
-    // Métodos geométricos
-    static Vector3 rotateX(Vector3 v, float a) {
-        float c = (float)Math.cos(a), s = (float)Math.sin(a);
-        return new Vector3(v.x, v.y*c - v.z*s, v.y*s + v.z*c);
+    private void updateShapeLabel() {
+        shapeLabel.setText(figuras.get(currentIndex).getClass().getSimpleName());
     }
-    static Vector3 rotateY(Vector3 v, float a) {
-        float c = (float)Math.cos(a), s = (float)Math.sin(a);
-        return new Vector3(v.x*c + v.z*s, v.y, -v.x*s + v.z*c);
+
+    // Rotación sobre su propio eje
+    private double[] rotateModel(double x, double y, double z) {
+        if (rotatingSelfX) {
+            double c = Math.cos(rotX), s = Math.sin(rotX);
+            double y1 = y * c - z * s, z1 = y * s + z * c;
+            y = y1; z = z1;
+        }
+        if (rotatingSelfY) {
+            double c = Math.cos(rotY), s = Math.sin(rotY);
+            double x1 = x * c + z * s, z1 = -x * s + z * c;
+            x = x1; z = z1;
+        }
+        if (rotatingSelfZ) {
+            double c = Math.cos(rotZ), s = Math.sin(rotZ);
+            double x1 = x * c - y * s, y1 = x * s + y * c;
+            x = x1; y = y1;
+        }
+        return new double[]{x, y, z};
     }
-    static boolean isBackface(Vector3[] w, Face f) {
-        Vector3 v0 = w[f.idx[0]], v1 = w[f.idx[1]], v2 = w[f.idx[2]];
-        Vector3 n = v1.subtract(v0).cross(v2.subtract(v0)).normalize();
-        return n.z >= 0;
+
+    // Rotaciones globales para la traslación
+    private double[] rotateAroundX(double x, double y, double z, double ang) {
+        double c = Math.cos(ang), s = Math.sin(ang);
+        return new double[]{ x, y * c - z * s, y * s + z * c };
     }
-    static Point project(Vector3 v, Graficos3D g3) {
-        float d = 2;
-        float x = v.x * (d / v.z);
-        float y = v.y * (d / v.z);
-        int sx = Math.round((x + 1) * g3.getWidth()  / 2);
-        int sy = Math.round((1 - y) * g3.getHeight() / 2);
-        return new Point(sx, sy);
+    private double[] rotateAroundY(double x, double y, double z, double ang) {
+        double c = Math.cos(ang), s = Math.sin(ang);
+        return new double[]{ x * c + z * s, y, -x * s + z * c };
+    }
+    private double[] rotateAroundZ(double x, double y, double z, double ang) {
+        double c = Math.cos(ang), s = Math.sin(ang);
+        return new double[]{ x * c - y * s, x * s + y * c, z };
+    }
+
+    // Transformación mundo → cámara
+    private double[] transform(double x, double y, double z) {
+        x = -x; z = -z;
+        double cosY = Math.cos(cameraYaw), sinY = Math.sin(cameraYaw);
+        double x1 = x * cosY - z * sinY;
+        double z1 = x * sinY + z * cosY;
+        double cosP = Math.cos(cameraPitch), sinP = Math.sin(cameraPitch);
+        double y2 = y * cosP - z1 * sinP;
+        double z2 = y * sinP + z1 * cosP;
+        return new double[]{ x1, y2, z2 };
+    }
+
+    // Proyección ortográfica/perspectiva
+    private Point project(double x, double y, double z) {
+        if (perspective) {
+            double f = focalLength / (z + cameraDistance);
+            return new Point((int)(x * f), (int)(y * f));
+        } else {
+            return new Point((int)x, (int)y);
+        }
+    }
+
+    private void render() {
+        // 1) Actualizar ángulos propios
+        if (rotatingSelfX) rotX += rotSpeed;
+        if (rotatingSelfY) rotY += rotSpeed;
+        if (rotatingSelfZ) rotZ += rotSpeed;
+
+        // 2) Actualizar traslación orbital (rotar tx,ty,tz alrededor del origen)
+        if (rotatingOrbit) {
+            double[] t;
+            switch (orbitAxis) {
+                case 'X' -> t = rotateAroundX(tx, ty, tz, orbitSpeed);
+                case 'Y' -> t = rotateAroundY(tx, ty, tz, orbitSpeed);
+                case 'Z' -> t = rotateAroundZ(tx, ty, tz, orbitSpeed);
+                default  -> t = new double[]{tx, ty, tz};
+            }
+            tx = t[0]; ty = t[1]; tz = t[2];
+        }
+
+        // 3) Dibujar fondo y ejes
+        graficos.clear(Color.BLACK);
+        int cx = getContentPane().getWidth()  / 2;
+        int cy = getContentPane().getHeight() / 2;
+
+        rotationLabel.setText(
+            String.format("Yaw: %.1f°, Pitch: %.1f°",
+                Math.toDegrees(cameraYaw),
+                Math.toDegrees(cameraPitch))
+        );
+
+        var o3  = transform(0, 0, 0);
+        var ex3 = transform(axisLength, 0, 0);
+        var ey3 = transform(0, axisLength, 0);
+        var ez3 = transform(0, 0, axisLength);
+        var o   = project(o3[0], o3[1], o3[2]);
+        var ex  = project(ex3[0], ex3[1], ex3[2]);
+        var ey  = project(ey3[0], ey3[1], ey3[2]);
+        var ez  = project(ez3[0], ez3[1], ez3[2]);
+
+        // Colores intercambiados X↔Z
+        graficos.drawLine(cx+o.x, cy-o.y, cx+ex.x, cy-ex.y, Color.GREEN); // eje X en verde
+        graficos.drawLine(cx+o.x, cy-o.y, cx+ey.x, cy-ey.y, Color.RED);   // eje Y en rojo
+        graficos.drawLine(cx+o.x, cy-o.y, cx+ez.x, cy-ez.y, Color.BLUE);  // eje Z en azul
+
+        // 4) Dibujar figura
+        Figura3D fig = figuras.get(currentIndex);
+        for (Linea3D L : fig.getLineas()) {
+            // a) rotación propia
+            double[] pA = rotateModel(L.a.x, L.a.y, L.a.z);
+            double[] pB = rotateModel(L.b.x, L.b.y, L.b.z);
+
+            // b) escala si es cilindro, luego traslación (ya actualizada por órbita)
+            double ax, ay, az, bx, by, bz;
+            if (fig instanceof Cilindro) {
+                double scale = 30.0;
+                ax = pA[0] * scale + tx;
+                ay = pA[1] * scale + ty;
+                az = pA[2] * scale + tz;
+                bx = pB[0] * scale + tx;
+                by = pB[1] * scale + ty;
+                bz = pB[2] * scale + tz;
+            } else {
+                ax = pA[0] + tx;
+                ay = pA[1] + ty;
+                az = pA[2] + tz;
+                bx = pB[0] + tx;
+                by = pB[1] + ty;
+                bz = pB[2] + tz;
+            }
+
+            // c) color cilindro
+            Color lineColor = Color.WHITE;
+            if (fig instanceof Cilindro) {
+                double tNorm = ((L.a.y + L.b.y) / 2.0) / (2 * Math.PI);
+                tNorm = Math.max(0, Math.min(1, tNorm));
+                lineColor = Color.getHSBColor((float)((2.0/3.0)*(1 - tNorm)), 1f, 1f);
+            }
+
+            // d) cámara + proyección
+            var A = transform(ax, ay, az);
+            var B = transform(bx, by, bz);
+            var p1 = project(A[0], A[1], A[2]);
+            var p2 = project(B[0], B[1], B[2]);
+
+            // e) dibujar línea
+            graficos.drawLine(cx + p1.x, cy - p1.y,
+                              cx + p2.x, cy - p2.y,
+                              lineColor);
+        }
+
+        // 5) presentar
+        graficos.present();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(Main::new);
     }
 }
