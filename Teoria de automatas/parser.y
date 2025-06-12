@@ -1,6 +1,3 @@
-/*------------------------------------------------------------
- * parser.y — ahora con ejecución real de operaciones sobre conjuntos
- *------------------------------------------------------------*/
 %{
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +21,7 @@ static int setCount = 0;
 /* Puntero al conjunto que estamos definiendo en la regla SET … */
 static Set *currentSet = NULL;
 
-/* ---- Funciones auxiliares ---- */
+/* ---- Funciones ---- */
 static Set *findSet(const char *name) {
     for(int i = 0; i < setCount; i++)
         if (strcmp(sets[i].name, name) == 0)
@@ -52,6 +49,7 @@ static Set *createOrGetSet(const char *name) {
     return s;
 }
 
+/* agregar un elemento a un conjunto */
 static void addElement(Set *s, const char *elem) {
     if (!s) return;
     /* evitamos duplicados */
@@ -65,6 +63,7 @@ static void addElement(Set *s, const char *elem) {
     s->elements[s->count++] = strdup(elem);
 }
 
+/* eliminar un conjunto */
 static void deleteSetFunc(const char *name) {
     for(int i = 0; i < setCount; i++) {
         if (strcmp(sets[i].name, name) == 0) {
@@ -80,6 +79,7 @@ static void deleteSetFunc(const char *name) {
     fprintf(stderr, "Warning: conjunto '%s' no existe (DeleteSet)\n", name);
 }
 
+/* eliminar los elementos de un conjunto */
 static void clearSetFunc(const char *name) {
     Set *s = findSet(name);
     if (s) {
@@ -90,6 +90,7 @@ static void clearSetFunc(const char *name) {
     }
 }
 
+/* imprimir un conjunto */
 static void printSetFunc(const char *name) {
     Set *s = findSet(name);
     if (!s) {
@@ -103,6 +104,7 @@ static void printSetFunc(const char *name) {
     printf("}\n");
 }
 
+/* imprimir todos los conjuntos */
 static void showAllSets() {
     if (setCount == 0) {
         printf("No hay conjuntos definidos.\n");
@@ -113,6 +115,7 @@ static void showAllSets() {
     }
 }
 
+/* union de conjunutos */
 static void unionSetsFunc(const char *n1, const char *n2) {
     Set *a = findSet(n1), *b = findSet(n2);
     if (!a || !b) {
@@ -138,6 +141,7 @@ static void unionSetsFunc(const char *n1, const char *n2) {
     printf(" }\n");
 }
 
+/* interseccion de conjuntos */
 static void intersectSetsFunc(const char *n1, const char *n2) {
     Set *a = findSet(n1), *b = findSet(n2);
     if (!a || !b) {
@@ -166,7 +170,7 @@ void yyerror(const char *s) {
 }
 %}
 
-/* Tokens (tal como en tu scanner.l) */
+/* Tokens */
 %token SETUNION CLEARSET PRINTSET SHOWSETS DELETESET UNIONSET INTERSECTION SETS SET
 %token ASSIGN LBRACE RBRACE COMMA SEMICOLON EXITCMD
 %token ID ELEMENT
@@ -190,7 +194,6 @@ statement:
       instruction SEMICOLON
     | EXITCMD SEMICOLON
         {
-            printf(">> Saliendo… ¡adiós!\n");
             exit(0);
         }
     | error SEMICOLON
@@ -200,7 +203,7 @@ statement:
         }
     ;
 
-/* ---- Aquí vienen las acciones reales ---- */
+/* ---- instrucciones ---- */
 instruction:
     /* definición de un conjunto */
     SET ID ASSIGN LBRACE
