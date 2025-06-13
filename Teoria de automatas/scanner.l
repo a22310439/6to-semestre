@@ -15,7 +15,8 @@
 "Union"           { return UNIONSET; }
 "intersection"    { return INTERSECTION; }
 "Sets"            { return SETS; }
-"Set"             { return SET;    }
+"Set"             { return SET; }
+"Invert"          { return INVERT; }
 "Exit"            { return EXITCMD; }
 
 ":="              { return ASSIGN; }

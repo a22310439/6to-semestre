@@ -150,8 +150,8 @@ static void intersectSetsFunc(const char *n1, const char *n2) {
     }
     printf("Intersection(%s,%s) = { ", n1, n2);
     int printed = 0;
-    for(int i=0;i<a->count;i++){
-        for(int j=0;j<b->count;j++){
+    for(int i=0; i<a->count; i++){
+        for(int j=0; j<b->count; j++){
             if (strcmp(a->elements[i], b->elements[j])==0){
                 if (printed++) printf(", ");
                 printf("%s", a->elements[i]);
@@ -160,6 +160,21 @@ static void intersectSetsFunc(const char *n1, const char *n2) {
         }
     }
     printf(" }\n");
+}
+
+/* --- invertir un conjunto --- */
+static void invertSetFunc(const char *name) {
+    Set *s = findSet(name);
+    if (!s) {
+        fprintf(stderr, "Error: conjunto '%s' no existe (Invert)\n", name);
+        return;
+    }
+    for (int i = 0; i < s->count/2; i++) {
+        char *tmp = s->elements[i];
+        s->elements[i] = s->elements[s->count - 1 - i];
+        s->elements[s->count - 1 - i] = tmp;
+    }
+    printf(">> Conjunto '%s' invertido.\n", name);
 }
 
 /* Prototipos del parser */
@@ -171,7 +186,7 @@ void yyerror(const char *s) {
 %}
 
 /* Tokens */
-%token SETUNION CLEARSET PRINTSET SHOWSETS DELETESET UNIONSET INTERSECTION SETS SET
+%token SETUNION CLEARSET PRINTSET SHOWSETS DELETESET UNIONSET INTERSECTION SETS SET INVERT
 %token ASSIGN LBRACE RBRACE COMMA SEMICOLON EXITCMD
 %token ID ELEMENT
 
@@ -193,9 +208,7 @@ program:
 statement:
       instruction SEMICOLON
     | EXITCMD SEMICOLON
-        {
-            exit(0);
-        }
+        { exit(0); }
     | error SEMICOLON
         {
             yyerrok;
@@ -205,7 +218,6 @@ statement:
 
 /* ---- instrucciones ---- */
 instruction:
-    /* definición de un conjunto */
     SET ID ASSIGN LBRACE
         {
             currentSet = createOrGetSet($2);
@@ -213,7 +225,6 @@ instruction:
         }
     element_list RBRACE
         {
-            printf(">> Conjunto '%s' definido.\n", currentSet->name);
             currentSet = NULL;
         }
   | PRINTSET ID
@@ -245,9 +256,13 @@ instruction:
             intersectSetsFunc($2, $4);
             free($2); free($4);
         }
+  | INVERT ID
+        {
+            invertSetFunc($2);
+            free($2);
+        }
   ;
 
-/* element_list: va añadiendo elementos a currentSet */
 element_list:
       ELEMENT
         {
